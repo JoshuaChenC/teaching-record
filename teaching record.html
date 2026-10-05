@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>國小自然科教學進度管理系統 - 堂數自動精算版</title>
+  <title>國小自然科教學進度管理系統 - 全功能快速登記版</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase 8 穩定版相容 CDN -->
@@ -22,7 +22,6 @@
       <div>
         <div class="flex flex-wrap items-center gap-2 mb-1">
           <span class="badge bg-emerald-800 text-white">國小自然科科任</span>
-          <span class="text-xs text-slate-500 font-medium">授課堂數自動精算 · 段考起訖追蹤</span>
           <!-- 雲端同步狀態標籤 -->
           <div id="cloudStatusBadge" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
             <span id="cloudStatusDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
@@ -77,7 +76,6 @@
     <main id="tab-overview" class="space-y-4">
       <div class="flex justify-between items-center">
         <h2 id="overviewHeading" class="text-sm font-bold text-slate-600 uppercase tracking-wider">各班段考倒數與工作管線</h2>
-        <span class="text-xs text-slate-400">已授課堂數已依開學日自動累積計算</span>
       </div>
       <div id="overviewCardsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
     </main>
@@ -125,10 +123,10 @@
                   <input type="number" id="detailTextbookPage" oninput="updateCurrentClass('textbookPage', Number(this.value))" class="w-full border rounded-lg p-2 text-sm bg-white font-semibold" />
                 </div>
                 <div>
-                  <label class="text-xs text-slate-500 block mb-1">已授課堂數 (系統依課表自動算)</label>
+                  <label class="text-xs text-slate-500 block mb-1">已授課堂數 (系統自動精算)</label>
                   <div id="detailCompletedLessonsDisplay" class="w-full border border-slate-200 rounded-lg p-2 text-sm bg-slate-100 font-bold text-slate-700 flex items-center justify-between">
                     <span>0 節</span>
-                    <span class="text-[10px] text-slate-400 font-normal">自動累計</span>
+                    <span class="text-[10px] text-slate-400 font-normal">自動更新</span>
                   </div>
                 </div>
               </div>
@@ -203,7 +201,10 @@
           <div class="space-y-5">
             <section class="bg-slate-50 border border-slate-200 rounded-xl p-4">
               <div class="flex justify-between items-center mb-3">
-                <h3 class="font-bold text-sm text-slate-800">該班重點實驗安排</h3>
+                <div>
+                  <h3 class="font-bold text-sm text-slate-800">該班重點實驗安排</h3>
+                  <p class="text-[11px] text-slate-400">實驗名稱可直接點擊修改</p>
+                </div>
                 <button onclick="promptAddNewLab()" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-medium px-2.5 py-1 rounded transition">
                   + 新增實驗項目
                 </button>
@@ -224,8 +225,8 @@
     <main id="tab-schedule" class="hidden space-y-6">
       <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-6">
         <div>
-          <h2 class="text-base font-bold text-slate-900">學期起訖與基本時程</h2>
-          <p class="text-xs text-slate-500 mt-1">設定本學期的起訖區間與今日基準日，系統會自動在區間內比對課表推算堂數。</p>
+          <h2 class="text-base font-bold text-slate-900">學期起訖與基準時程</h2>
+          <p class="text-xs text-slate-500 mt-1">系統將根據開學日、今日日期與當前時間，自動精確判定已授課堂數與考前剩餘堂數。</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm">
@@ -238,9 +239,21 @@
             <input type="date" id="settingSemesterEnd" onchange="updateSemesterDates()" class="w-full border rounded-lg p-2 bg-white" />
           </div>
           <div>
-            <label class="text-xs text-slate-600 block mb-1 font-semibold">今日進度基準日</label>
+            <label class="text-xs text-slate-600 block mb-1 font-semibold">進度試算基準日 (預設今天)</label>
             <input type="date" id="settingCurrentDate" onchange="updateSemesterDates()" class="w-full border rounded-lg p-2 bg-white" />
           </div>
+        </div>
+
+        <!-- 每一節課的作息時間設定 (幾點幾分) -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">各節次上課時間設定 (幾點幾分)</h3>
+              <p class="text-xs text-slate-500">系統會在當天依據當前時間，精確判斷目前已經上完哪幾節課並自動累計進度。</p>
+            </div>
+            <button onclick="resetPeriodTimesToDefault()" class="text-xs text-slate-500 hover:text-slate-800 underline">恢復預設作息</button>
+          </div>
+          <div id="periodTimesContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2.5 text-xs"></div>
         </div>
 
         <!-- 多次段考時間起訖設定模組 -->
@@ -299,7 +312,7 @@
             <table class="w-full text-center text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs">
-                  <th class="p-3 w-16">節次</th>
+                  <th class="p-3 w-28">節次 / 作息</th>
                   <th class="p-3">週一</th>
                   <th class="p-3">週二</th>
                   <th class="p-3">週三</th>
@@ -369,45 +382,143 @@
       </div>
     </main>
 
-    <!-- 下課快速登記彈窗 -->
-    <div id="quickModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
-        <div class="flex justify-between items-center border-b pb-3">
-          <h3 class="font-bold text-base text-slate-900">下課快速登記</h3>
-          <button onclick="closeQuickModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-        </div>
-        <div class="space-y-3 text-sm">
+    <!-- 下課快速登記全功能彈窗 (升級完整填寫欄位) -->
+    <div id="quickModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-3 md:p-6 z-50 overflow-y-auto">
+      <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-5 my-auto max-h-[90vh] overflow-y-auto">
+        
+        <!-- 彈窗頂部 -->
+        <div class="flex justify-between items-start border-b pb-3">
           <div>
-            <label class="text-xs text-slate-500 block mb-1">剛剛上課的班級 (依年級班序)</label>
-            <select id="quickModalClassSelect" onchange="renderQuickModalData()" class="w-full border rounded-lg p-2 bg-slate-50 font-bold"></select>
+            <h3 class="font-bold text-lg text-slate-900">下課 30 秒快速登記</h3>
+            <p class="text-xs text-slate-500 mt-0.5">鐘響劃記重點筆記、習作作業、測驗與實驗進度，即刻自動同步保存。</p>
           </div>
-          <div class="p-3.5 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-between">
+          <button onclick="closeQuickModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none">&times;</button>
+        </div>
+
+        <div class="space-y-4 text-xs">
+          <!-- 1. 班級與進度狀態列 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
             <div>
-              <div class="text-xs text-emerald-800 font-semibold">系統自動累計已授課</div>
-              <div id="quickModalLessonCount" class="text-xl font-black text-emerald-950 mt-0.5">0 節</div>
+              <label class="text-slate-600 block mb-1 font-bold">上課班級 (依年級班序)</label>
+              <select id="qmClassSelect" onchange="renderQuickModalData()" class="w-full border rounded-lg p-2 bg-white font-bold text-slate-800 text-sm"></select>
             </div>
-            <span class="text-xs text-emerald-700 bg-emerald-100/70 px-2 py-1 rounded-md font-medium">開學至今課堂數</span>
+            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg">
+              <div>
+                <div class="text-[11px] text-emerald-800 font-semibold">系統自動精算已授課</div>
+                <div id="qmAutoLessonCount" class="text-lg font-black text-emerald-950">0 節</div>
+              </div>
+              <span class="text-[10px] text-emerald-700 bg-white px-2 py-1 rounded border border-emerald-200">當前時間精確累積</span>
+            </div>
           </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="text-xs text-slate-500 block mb-1">課本停在 (頁碼)</label>
-              <input type="number" id="quickModalPage" onchange="saveQuickModalChanges()" class="w-full border rounded-lg p-2 text-sm bg-white font-bold" />
+
+          <!-- 2. 課本與筆記落實 -->
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
+            <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span> 課本進度與重點筆記
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div class="sm:col-span-2">
+                <label class="text-slate-500 block mb-0.5">當前進度單元 (對應教材)</label>
+                <select id="qmCurrentTopic" onchange="saveQmField('currentTopic', this.value)" class="w-full border rounded p-1.5 bg-white font-medium"></select>
+              </div>
+              <div>
+                <label class="text-slate-500 block mb-0.5">課本停在 (頁碼)</label>
+                <input type="number" id="qmTextbookPage" oninput="saveQmField('textbookPage', Number(this.value))" class="w-full border rounded p-1.5 bg-white font-bold text-center" />
+              </div>
             </div>
             <div>
-              <label class="text-xs text-slate-500 block mb-1">習作批改狀態</label>
-              <select id="quickModalWorkbookStatus" onchange="saveQuickModalChanges()" class="w-full border rounded-lg p-2 text-sm bg-white">
-                <option value="未派">未派</option>
-                <option value="已派未收">已派未收</option>
-                <option value="已收待改">已收待改</option>
-                <option value="已批改待訂正">已批改待訂正</option>
-                <option value="訂正完畢">訂正完畢</option>
-              </select>
+              <label class="text-slate-500 block mb-0.5">重點筆記落實狀況</label>
+              <input type="text" id="qmNotebookStatus" placeholder="例如：心智圖全班完成、3人未抄完" oninput="saveQmField('notebookStatus', this.value)" class="w-full border rounded p-1.5 bg-white" />
             </div>
+          </div>
+
+          <!-- 3. 作業與習作管線 -->
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
+            <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-blue-600"></span> 自然習作與作業簿
+            </h4>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-slate-500 block mb-0.5">自然習作進度 (頁碼)</label>
+                <input type="number" id="qmWorkbookPage" oninput="saveQmField('workbookPage', Number(this.value))" class="w-full border rounded p-1.5 bg-white font-medium text-center" />
+              </div>
+              <div>
+                <label class="text-slate-500 block mb-0.5">習作批改狀態</label>
+                <select id="qmWorkbookStatus" onchange="saveQmField('workbookStatus', this.value)" class="w-full border rounded p-1.5 bg-white font-medium">
+                  <option value="未派">未派</option>
+                  <option value="已派未收">已派未收</option>
+                  <option value="已收待改">已收待改</option>
+                  <option value="已批改待訂正">已批改待訂正</option>
+                  <option value="訂正完畢">訂正完畢</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-slate-500 block mb-0.5">作業簿回數</label>
+                <input type="text" id="qmActivityBookUnit" placeholder="例如：第 1 回" oninput="saveQmField('activityBookUnit', this.value)" class="w-full border rounded p-1.5 bg-white font-medium" />
+              </div>
+              <div>
+                <label class="text-slate-500 block mb-0.5">作業簿狀態</label>
+                <select id="qmActivityBookStatus" onchange="saveQmField('activityBookStatus', this.value)" class="w-full border rounded p-1.5 bg-white font-medium">
+                  <option value="未派">未派</option>
+                  <option value="已派未收">已派未收</option>
+                  <option value="已收待改">已收待改</option>
+                  <option value="已批改待訂正">已批改待訂正</option>
+                  <option value="訂正完畢">訂正完畢</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. 小考 / 單元測驗 -->
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
+            <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-600"></span> 小考 / 隨堂評量測驗
+            </h4>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-slate-500 block mb-0.5">小考卷回數 / 範圍</label>
+                <input type="text" id="qmQuizUnit" placeholder="例如：1-1 隨堂卷" oninput="saveQmField('quizUnit', this.value)" class="w-full border rounded p-1.5 bg-white font-medium" />
+              </div>
+              <div>
+                <label class="text-slate-500 block mb-0.5">測驗與訂正狀態</label>
+                <select id="qmQuizStatus" onchange="saveQmField('quizStatus', this.value)" class="w-full border rounded p-1.5 bg-white font-medium">
+                  <option value="未安排">未安排</option>
+                  <option value="待測驗">待測驗</option>
+                  <option value="已測驗待批改">已測驗待批改</option>
+                  <option value="待檢討訂正">待檢討訂正</option>
+                  <option value="全員訂正完畢">全員訂正完畢</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-500 block mb-0.5">缺考需補考名單</label>
+              <input type="text" id="qmQuizMissing" placeholder="例如：5號林小明、12號陳小華" oninput="saveQmField('quizMissing', this.value)" class="w-full border rounded p-1.5 bg-white" />
+            </div>
+          </div>
+
+          <!-- 5. 重點實驗快速劃記 -->
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
+            <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-purple-600"></span> 該班重點實驗快速狀態更新
+            </h4>
+            <div id="qmExperimentsList" class="space-y-2">
+              <!-- 動態注入該班所有實驗快速開關 -->
+            </div>
+          </div>
+
+          <!-- 6. 特殊備忘 -->
+          <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-1.5 shadow-sm">
+            <label class="font-bold text-slate-800 text-xs block">課堂特殊備忘 (調課 / 秩序 / 器材歸還)</label>
+            <textarea id="qmNotes" rows="2" placeholder="例如：週五校外教學調課至週四第2節，記得向器材室歸還顯微鏡..." oninput="saveQmField('notes', this.value)" class="w-full border rounded p-2 bg-slate-50 text-xs"></textarea>
           </div>
         </div>
-        <div class="pt-2">
-          <button onclick="closeQuickModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl transition">
-            儲存並關閉
+
+        <!-- 彈窗底部操作按鈕 -->
+        <div class="pt-2 border-t flex justify-end gap-2">
+          <button onclick="closeQuickModal()" class="w-full sm:w-auto px-6 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold rounded-xl transition text-sm shadow-md">
+            儲存登記並關閉
           </button>
         </div>
       </div>
@@ -568,6 +679,24 @@
     }
 
     // ===== 3. 資料庫結構 =====
+    const defaultPeriodTimes = {
+      1: { start: "08:40", end: "09:20" },
+      2: { start: "09:30", end: "10:10" },
+      3: { start: "10:30", end: "11:10" },
+      4: { start: "11:20", end: "12:00" },
+      5: { start: "13:30", end: "14:10" },
+      6: { start: "14:20", end: "15:00" },
+      7: { start: "15:20", end: "16:00" }
+    };
+
+    function getTodayYMD() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
     const defaultData = {
       curriculums: [
         {
@@ -609,8 +738,9 @@
       settings: {
         semesterStart: "2026-08-31",
         semesterEnd: "2027-01-20",
-        currentDate: "2026-10-05",
+        currentDate: getTodayYMD(),
         activeExamId: "exam-1",
+        periodTimes: defaultPeriodTimes,
         exams: [
           { id: "exam-1", name: "第一次段考 (期中評量)", startDate: "2026-11-03", endDate: "2026-11-04" },
           { id: "exam-2", name: "第二次段考 (期末評量)", startDate: "2027-01-12", endDate: "2027-01-13" }
@@ -645,7 +775,7 @@
           quizMissing: "",
           notes: "低中年級剛接觸自然科，操作實驗需多留 10 分鐘收拾",
           labs: [
-            { name: "葉脈觀察與葉片拓印", status: "completed", date: "09/20", missing: "", equip: "各類植物葉片、放大鏡" },
+            { name: "葉脈觀察與葉片拓印", status: "completed", date: "2026-09-20", missing: "", equip: "各類植物葉片、放大鏡" },
             { name: "磁鐵相吸相斥實驗", status: "pending", date: "", missing: "", equip: "條形磁鐵、鐵粉、指北針" }
           ]
         },
@@ -665,8 +795,8 @@
           quizMissing: "3號 陳○○ (病假待補)",
           notes: "提問熱絡，進度穩定符合排程",
           labs: [
-            { name: "竿影方位觀測與影子紀錄", status: "completed", date: "09/18", missing: "", equip: "指北針、竿影觀測板" },
-            { name: "水生植物葉柄/氣室解剖觀察", status: "ready", date: "10/08", missing: "7號 蔡○○", equip: "解剖顯微鏡、布袋蓮、水蘊草" },
+            { name: "竿影方位觀測與影子紀錄", status: "completed", date: "2026-09-18", missing: "", equip: "指北針、竿影觀測板" },
+            { name: "水生植物葉柄/氣室解剖觀察", status: "ready", date: "2026-10-08", missing: "7號 蔡○○", equip: "解剖顯微鏡、布袋蓮、水蘊草" },
             { name: "魚類鰓蓋與運動觀察", status: "pending", date: "", missing: "", equip: "朱文錦、滴管、食用色素" }
           ]
         },
@@ -686,8 +816,8 @@
           quizMissing: "",
           notes: "週一中秋補假少上2節，課堂提問需精準收斂",
           labs: [
-            { name: "竿影方位觀測與影子紀錄", status: "completed", date: "09/19", missing: "", equip: "指北針、竿影觀測板" },
-            { name: "水生植物葉柄/氣室解剖觀察", status: "ready", date: "10/09", missing: "", equip: "解剖顯微鏡、布袋蓮" },
+            { name: "竿影方位觀測與影子紀錄", status: "completed", date: "2026-09-19", missing: "", equip: "指北針、竿影觀測板" },
+            { name: "水生植物葉柄/氣室解剖觀察", status: "ready", date: "2026-10-09", missing: "", equip: "解剖顯微鏡、布袋蓮" },
             { name: "魚類鰓蓋與運動觀察", status: "pending", date: "", missing: "", equip: "朱文錦、滴管" }
           ]
         },
@@ -707,7 +837,7 @@
           quizMissing: "",
           notes: "需提前至器材室清點旋轉星座盤",
           labs: [
-            { name: "星座盤操作與北極星指認", status: "completed", date: "09/25", missing: "", equip: "四季星座盤、指北針" },
+            { name: "星座盤操作與北極星指認", status: "completed", date: "2026-09-25", missing: "", equip: "四季星座盤、指北針" },
             { name: "植物葉片氣孔顯微觀察", status: "pending", date: "", missing: "", equip: "光學顯微鏡、紫背萬年青、載玻片" }
           ]
         }
@@ -723,7 +853,15 @@
       if (!appData.settings) appData.settings = {};
       if (!appData.settings.semesterStart) appData.settings.semesterStart = defaultData.settings.semesterStart;
       if (!appData.settings.semesterEnd) appData.settings.semesterEnd = defaultData.settings.semesterEnd;
-      if (!appData.settings.currentDate) appData.settings.currentDate = defaultData.settings.currentDate;
+      if (!appData.settings.currentDate) appData.settings.currentDate = getTodayYMD();
+      if (!appData.settings.periodTimes) appData.settings.periodTimes = defaultPeriodTimes;
+
+      for (let p = 1; p <= 7; p++) {
+        if (!appData.settings.periodTimes[p]) {
+          appData.settings.periodTimes[p] = defaultPeriodTimes[p];
+        }
+      }
+
       if (!appData.settings.exams || !Array.isArray(appData.settings.exams) || appData.settings.exams.length === 0) {
         appData.settings.exams = defaultData.settings.exams;
       }
@@ -778,7 +916,7 @@
       if (activeTab === 'curriculum') renderCurriculumTab();
     }
 
-    // ===== 4. 段考目標切換與算課引擎 =====
+    // ===== 4. 核心算課引擎 =====
     function formatExamRange(ex) {
       if (!ex.startDate && !ex.endDate) return "未設定日期";
       if (ex.startDate === ex.endDate || !ex.endDate) return ex.startDate;
@@ -817,16 +955,97 @@
       return set;
     }
 
-    // 核心算課引擎：計算任兩日期之間的自然堂數
-    function calculateLessonsBetween(classId, startDateStr, targetDateStr, isExamTarget = false) {
-      if (!startDateStr || !targetDateStr) return 0;
-      let cur = new Date(startDateStr);
-      let end = new Date(targetDateStr);
+    function isPeriodPassedToday(periodNum) {
+      const pInfo = appData.settings.periodTimes[periodNum];
+      if (!pInfo || !pInfo.end) return true;
+      const now = new Date();
+      const currentHHMM = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
+      return currentHHMM >= pInfo.end;
+    }
 
-      if (isExamTarget) {
-        end.setDate(end.getDate() - 1);
+    function calculateAutoCompletedLessons(classId) {
+      const startStr = appData.settings.semesterStart;
+      const todayStr = appData.settings.currentDate || getTodayYMD();
+      if (!startStr || !todayStr) return 0;
+
+      let cur = new Date(startStr);
+      const end = new Date(todayStr);
+      if (cur > end) return 0;
+
+      const excludedSet = getExcludedDatesSet();
+      let count = 0;
+
+      while (cur <= end) {
+        const y = cur.getFullYear();
+        const m = String(cur.getMonth() + 1).padStart(2, '0');
+        const d = String(cur.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${d}`;
+        const dayOfWeek = cur.getDay();
+
+        if (dayOfWeek >= 1 && dayOfWeek <= 5 && !excludedSet.has(dateStr)) {
+          const isToday = (dateStr === todayStr);
+          for (let period = 1; period <= 7; period++) {
+            const key = `${dayOfWeek}-${period}`;
+            if (appData.schedule[key] === classId) {
+              if (isToday) {
+                if (isPeriodPassedToday(period)) count++;
+              } else {
+                count++;
+              }
+            }
+          }
+        }
+        cur.setDate(cur.getDate() + 1);
       }
+      return count;
+    }
 
+    function calculateRemainingLessons(classId) {
+      const activeExam = getActiveExam();
+      if (!activeExam.startDate) return 0;
+
+      const todayStr = appData.settings.currentDate || getTodayYMD();
+      let cur = new Date(todayStr);
+      let end = new Date(activeExam.startDate);
+      end.setDate(end.getDate() - 1);
+
+      if (cur > end) return 0;
+
+      const excludedSet = getExcludedDatesSet();
+      let count = 0;
+
+      while (cur <= end) {
+        const y = cur.getFullYear();
+        const m = String(cur.getMonth() + 1).padStart(2, '0');
+        const d = String(cur.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${d}`;
+        const dayOfWeek = cur.getDay();
+
+        if (dayOfWeek >= 1 && dayOfWeek <= 5 && !excludedSet.has(dateStr)) {
+          const isToday = (dateStr === todayStr);
+          for (let period = 1; period <= 7; period++) {
+            const key = `${dayOfWeek}-${period}`;
+            if (appData.schedule[key] === classId) {
+              if (isToday) {
+                if (!isPeriodPassedToday(period)) count++;
+              } else {
+                count++;
+              }
+            }
+          }
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+      return count;
+    }
+
+    function calculateTotalLessonsInSemester(classId) {
+      const startStr = appData.settings.semesterStart;
+      const endStr = appData.settings.semesterEnd;
+      if (!startStr || !endStr) return 0;
+
+      let cur = new Date(startStr);
+      const end = new Date(endStr);
       if (cur > end) return 0;
 
       const excludedSet = getExcludedDatesSet();
@@ -848,17 +1067,6 @@
         cur.setDate(cur.getDate() + 1);
       }
       return count;
-    }
-
-    // 自動計算：開學日起算至今日基準日之「已授課堂數」
-    function calculateAutoCompletedLessons(classId) {
-      return calculateLessonsBetween(classId, appData.settings.semesterStart, appData.settings.currentDate, false);
-    }
-
-    // 自動計算：今日基準日起算至段考前一日之「考前剩餘節數」
-    function calculateRemainingLessons(classId) {
-      const activeExam = getActiveExam();
-      return calculateLessonsBetween(classId, appData.settings.currentDate, activeExam.startDate, true);
     }
 
     // ===== 5. 頁籤切換 =====
@@ -982,7 +1190,7 @@
       document.getElementById('detailTextbookPage').value = current.textbookPage || 0;
       document.getElementById('detailCompletedLessonsDisplay').innerHTML = `
         <span class="text-base text-emerald-950 font-black">${autoCompleted} 節</span>
-        <span class="text-[10px] text-slate-500 font-normal">自開學日依課表自動累計</span>
+        <span class="text-[10px] text-slate-500 font-normal">依課表與作息時間即時累計</span>
       `;
       document.getElementById('detailNotebookStatus').value = current.notebookStatus || '';
       document.getElementById('detailWorkbookPage').value = current.workbookPage || 0;
@@ -994,15 +1202,29 @@
       document.getElementById('detailQuizMissing').value = current.quizMissing || '';
       document.getElementById('detailNotes').value = current.notes || '';
 
+      renderDetailLabsList(current);
+    }
+
+    function renderDetailLabsList(currentClass) {
       const labsContainer = document.getElementById('detailLabsList');
       labsContainer.innerHTML = '';
-      (current.labs || []).forEach((lab, index) => {
+
+      (currentClass.labs || []).forEach((lab, index) => {
         const labItem = document.createElement('div');
-        labItem.className = "bg-white p-3 rounded-lg border border-slate-200 space-y-2 text-xs";
+        labItem.className = "bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 text-xs shadow-sm";
         labItem.innerHTML = `
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-slate-800">${lab.name}</span>
-            <div class="flex items-center gap-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
+            <div class="flex-1">
+              <input 
+                type="text" 
+                value="${lab.name || ''}" 
+                placeholder="請輸入實驗名稱..." 
+                oninput="updateLabFieldSilent(${index}, 'name', this.value)" 
+                onblur="saveAppData()" 
+                class="w-full font-bold text-slate-800 text-sm border-b border-transparent hover:border-slate-300 focus:border-emerald-600 focus:bg-slate-50 px-1 py-0.5 rounded transition focus:outline-none" 
+              />
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
               <select onchange="updateLabStatus(${index}, this.value)" class="border rounded px-2 py-1 font-semibold text-xs ${
                 lab.status === 'completed' ? 'text-emerald-700 bg-emerald-50' : lab.status === 'ready' ? 'text-blue-700 bg-blue-50' : 'text-slate-600'
               }">
@@ -1011,17 +1233,65 @@
                 <option value="completed" ${lab.status === 'completed' ? 'selected' : ''}>操作完畢</option>
                 <option value="makeup" ${lab.status === 'makeup' ? 'selected' : ''}>需補做</option>
               </select>
-              <button onclick="deleteLab(${index})" class="text-rose-500 hover:text-rose-700 px-1">刪除</button>
+              <button onclick="deleteLab(${index})" class="text-rose-500 hover:text-rose-700 px-1 font-medium">刪除</button>
             </div>
           </div>
-          <div class="grid grid-cols-3 gap-2">
-            <input type="text" placeholder="器材(例: 顯微鏡)" value="${lab.equip || ''}" oninput="updateLabField(${index}, 'equip', this.value)" class="border rounded p-1" />
-            <input type="text" placeholder="預約日期(例: 10/08)" value="${lab.date || ''}" oninput="updateLabField(${index}, 'date', this.value)" class="border rounded p-1" />
-            <input type="text" placeholder="補做學生名單" value="${lab.missing || ''}" oninput="updateLabField(${index}, 'missing', this.value)" class="border rounded p-1" />
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">預約/操作日期 (選填)</label>
+              <input type="date" value="${lab.date || ''}" onchange="updateLabFieldSilent(${index}, 'date', this.value)" class="w-full border rounded p-1.5 bg-white text-xs" />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">器材/耗材備註</label>
+              <input type="text" placeholder="例如：解剖顯微鏡、水蘊草" value="${lab.equip || ''}" oninput="updateLabFieldSilent(${index}, 'equip', this.value)" onblur="saveAppData()" class="w-full border rounded p-1.5 text-xs" />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">缺課補做名單</label>
+              <input type="text" placeholder="例如：7號 蔡○○" value="${lab.missing || ''}" oninput="updateLabFieldSilent(${index}, 'missing', this.value)" onblur="saveAppData()" class="w-full border rounded p-1.5 text-xs" />
+            </div>
           </div>
         `;
         labsContainer.appendChild(labItem);
       });
+    }
+
+    function updateLabFieldSilent(index, field, val) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && c.labs && c.labs[index]) {
+        c.labs[index][field] = val;
+        if (field === 'date') saveAppData();
+      }
+    }
+
+    function updateLabStatus(index, status) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && c.labs && c.labs[index]) {
+        c.labs[index].status = status;
+        saveAppData();
+        renderDetailLabsList(c);
+      }
+    }
+
+    function deleteLab(index) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && confirm('確定刪除此實驗項目？')) {
+        c.labs.splice(index, 1);
+        saveAppData();
+        renderDetailLabsList(c);
+      }
+    }
+
+    function promptAddNewLab() {
+      const name = prompt('請輸入實驗名稱 (例如：水生植物葉柄解剖觀察):');
+      if (name && name.trim()) {
+        const c = appData.classes.find(item => item.id === currentSelectedClassId);
+        if (c) {
+          if (!c.labs) c.labs = [];
+          c.labs.push({ name: name.trim(), status: 'pending', date: '', missing: '', equip: '' });
+          saveAppData();
+          renderDetailLabsList(c);
+        }
+      }
     }
 
     function renderDetailTopicOptions(currentClass) {
@@ -1055,45 +1325,6 @@
       if (c) {
         c[field] = val;
         saveAppData();
-      }
-    }
-
-    function updateLabStatus(index, status) {
-      const c = appData.classes.find(item => item.id === currentSelectedClassId);
-      if (c && c.labs[index]) {
-        c.labs[index].status = status;
-        saveAppData();
-        renderDetail();
-      }
-    }
-
-    function updateLabField(index, field, val) {
-      const c = appData.classes.find(item => item.id === currentSelectedClassId);
-      if (c && c.labs[index]) {
-        c.labs[index][field] = val;
-        saveAppData();
-      }
-    }
-
-    function deleteLab(index) {
-      const c = appData.classes.find(item => item.id === currentSelectedClassId);
-      if (c && confirm('確定刪除此實驗項目？')) {
-        c.labs.splice(index, 1);
-        saveAppData();
-        renderDetail();
-      }
-    }
-
-    function promptAddNewLab() {
-      const name = prompt('請輸入實驗名稱 (例如：磁鐵相吸與相斥實驗):');
-      if (name && name.trim()) {
-        const c = appData.classes.find(item => item.id === currentSelectedClassId);
-        if (c) {
-          if (!c.labs) c.labs = [];
-          c.labs.push({ name: name.trim(), status: 'pending', date: '', missing: '', equip: '' });
-          saveAppData();
-          renderDetail();
-        }
       }
     }
 
@@ -1139,13 +1370,58 @@
       }
     }
 
-    // ===== 7. 學期時程、段考起訖與課表管理 =====
+    // ===== 7. 各節次時間設定模組 =====
+    function renderPeriodTimesEditor() {
+      const container = document.getElementById('periodTimesContainer');
+      container.innerHTML = '';
+
+      for (let p = 1; p <= 7; p++) {
+        const pInfo = appData.settings.periodTimes[p] || defaultPeriodTimes[p];
+        const div = document.createElement('div');
+        div.className = "bg-white p-2.5 rounded-lg border border-slate-200 space-y-1.5 shadow-sm";
+        div.innerHTML = `
+          <div class="font-bold text-slate-800 text-center">第 ${p} 節</div>
+          <div class="space-y-1">
+            <div class="flex items-center gap-1">
+              <span class="text-[10px] text-slate-400">起:</span>
+              <input type="time" value="${pInfo.start}" onchange="updatePeriodTime(${p}, 'start', this.value)" class="border rounded px-1 py-0.5 text-xs w-full bg-slate-50" />
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-[10px] text-slate-400">訖:</span>
+              <input type="time" value="${pInfo.end}" onchange="updatePeriodTime(${p}, 'end', this.value)" class="border rounded px-1 py-0.5 text-xs w-full bg-slate-50" />
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function updatePeriodTime(periodNum, field, val) {
+      if (!appData.settings.periodTimes[periodNum]) {
+        appData.settings.periodTimes[periodNum] = { ...defaultPeriodTimes[periodNum] };
+      }
+      appData.settings.periodTimes[periodNum][field] = val;
+      saveAppData();
+      renderCalculatedGrid();
+    }
+
+    function resetPeriodTimesToDefault() {
+      if (confirm('確定恢復為國小標準作息時間？')) {
+        appData.settings.periodTimes = JSON.parse(JSON.stringify(defaultPeriodTimes));
+        saveAppData();
+        renderPeriodTimesEditor();
+        renderScheduleTab();
+      }
+    }
+
+    // ===== 8. 學期時程、段考起訖與課表管理 =====
     function renderScheduleTab() {
       sortAllClasses();
       document.getElementById('settingSemesterStart').value = appData.settings.semesterStart || '';
       document.getElementById('settingSemesterEnd').value = appData.settings.semesterEnd || '';
       document.getElementById('settingCurrentDate').value = appData.settings.currentDate || '';
 
+      renderPeriodTimesEditor();
       renderExamsEditor();
       renderExcludedTags();
 
@@ -1153,8 +1429,14 @@
       tbody.innerHTML = '';
 
       for (let p = 1; p <= 7; p++) {
+        const pInfo = appData.settings.periodTimes[p] || defaultPeriodTimes[p];
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="p-2 font-bold text-slate-500 bg-slate-50 text-xs">第 ${p} 節</td>`;
+        tr.innerHTML = `
+          <td class="p-2.5 font-bold text-slate-700 bg-slate-50 text-xs">
+            <div>第 ${p} 節</div>
+            <div class="text-[10px] text-slate-400 font-mono">${pInfo.start}~${pInfo.end}</div>
+          </td>
+        `;
         for (let d = 1; d <= 5; d++) {
           const key = `${d}-${p}`;
           const currentVal = appData.schedule[key] || '';
@@ -1247,7 +1529,7 @@
       }
     }
 
-    // ===== 8. 排除日標籤選填管理器 =====
+    // ===== 9. 排除日標籤選填管理器 =====
     const dayOfWeekChinese = ['日', '一', '二', '三', '四', '五', '六'];
 
     function renderExcludedTags() {
@@ -1354,11 +1636,42 @@
       appData.classes.forEach(c => {
         const autoCompleted = calculateAutoCompletedLessons(c.id);
         const remainingToActive = calculateRemainingLessons(c.id);
-        const totalInSemester = calculateLessonsBetween(c.id, appData.settings.semesterStart, appData.settings.semesterEnd, false);
+        const totalInSemester = calculateTotalLessonsInSemester(c.id);
 
         let examBreakdownHtml = '';
         appData.settings.exams.forEach(ex => {
-          const rem = calculateLessonsBetween(c.id, appData.settings.currentDate, ex.startDate, true);
+          let rem = 0;
+          if (ex.startDate) {
+            const todayStr = appData.settings.currentDate || getTodayYMD();
+            let cur = new Date(todayStr);
+            let end = new Date(ex.startDate);
+            end.setDate(end.getDate() - 1);
+            if (cur <= end) {
+              const excludedSet = getExcludedDatesSet();
+              while (cur <= end) {
+                const y = cur.getFullYear();
+                const m = String(cur.getMonth() + 1).padStart(2, '0');
+                const d = String(cur.getDate()).padStart(2, '0');
+                const dateStr = `${y}-${m}-${d}`;
+                const dayOfWeek = cur.getDay();
+                if (dayOfWeek >= 1 && dayOfWeek <= 5 && !excludedSet.has(dateStr)) {
+                  const isToday = (dateStr === todayStr);
+                  for (let period = 1; period <= 7; period++) {
+                    const key = `${dayOfWeek}-${period}`;
+                    if (appData.schedule[key] === c.id) {
+                      if (isToday) {
+                        if (!isPeriodPassedToday(period)) rem++;
+                      } else {
+                        rem++;
+                      }
+                    }
+                  }
+                }
+                cur.setDate(cur.getDate() + 1);
+              }
+            }
+          }
+
           examBreakdownHtml += `
             <div class="flex justify-between items-center text-[11px] text-slate-600">
               <span>距 ${ex.name.split(' ')[0]} (${formatExamRange(ex)}):</span>
@@ -1373,7 +1686,7 @@
           <div class="flex justify-between items-start pb-2 border-b border-slate-200">
             <div>
               <span class="font-bold text-slate-800 text-sm block">${c.name}</span>
-              <span class="text-slate-500 font-medium">已授課: ${autoCompleted} 節 (自動累計)</span>
+              <span class="text-slate-500 font-medium">已授課: ${autoCompleted} 節 (精算至當前時間)</span>
             </div>
             <div class="text-right">
               <span class="text-base font-black ${remainingToActive <= 3 ? 'text-amber-700' : 'text-emerald-800'}">考前剩餘 ${remainingToActive} 節</span>
@@ -1392,7 +1705,7 @@
       });
     }
 
-    // ===== 9. 教材庫管理邏輯 =====
+    // ===== 10. 教材庫管理邏輯 =====
     function renderCurriculumTab() {
       const tabsList = document.getElementById('curriculumTabsList');
       tabsList.innerHTML = '';
@@ -1501,10 +1814,12 @@
       renderCurriculumTab();
     }
 
-    // ===== 10. 快速登記彈窗 =====
+    // ===== 11. 全功能下課快速登記彈窗邏輯 =====
+    let quickModalActiveId = "";
+
     function openQuickModal() {
       sortAllClasses();
-      const select = document.getElementById('quickModalClassSelect');
+      const select = document.getElementById('qmClassSelect');
       select.innerHTML = '';
       appData.classes.forEach(c => {
         const opt = document.createElement('option');
@@ -1513,41 +1828,115 @@
         if (c.id === currentSelectedClassId) opt.selected = true;
         select.appendChild(opt);
       });
+
+      quickModalActiveId = select.value || appData.classes[0]?.id;
       renderQuickModalData();
+
       const modal = document.getElementById('quickModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
     }
 
     function closeQuickModal() {
+      saveAppData();
       const modal = document.getElementById('quickModal');
       modal.classList.remove('flex');
       modal.classList.add('hidden');
-      renderOverview();
+      refreshActiveView();
     }
 
     function renderQuickModalData() {
-      const classId = document.getElementById('quickModalClassSelect').value;
-      const c = appData.classes.find(item => item.id === classId);
+      quickModalActiveId = document.getElementById('qmClassSelect').value;
+      const c = appData.classes.find(item => item.id === quickModalActiveId);
+      if (!c) return;
+
+      // 1. 自動授課節數
+      const autoCompleted = calculateAutoCompletedLessons(c.id);
+      document.getElementById('qmAutoLessonCount').textContent = `${autoCompleted} 節`;
+
+      // 2. 當前單元選單
+      const topicSelect = document.getElementById('qmCurrentTopic');
+      topicSelect.innerHTML = '<option value="">請選擇進度單元...</option>';
+      const boundCurriculum = appData.curriculums.find(cu => cu.id === c.curriculumId) || appData.curriculums[0];
+      if (boundCurriculum && boundCurriculum.units) {
+        boundCurriculum.units.forEach(unit => {
+          const opt = document.createElement('option');
+          opt.value = unit;
+          opt.textContent = unit;
+          if (unit === c.currentTopic) opt.selected = true;
+          topicSelect.appendChild(opt);
+        });
+      }
+
+      // 3. 填入各項資料
+      document.getElementById('qmTextbookPage').value = c.textbookPage || 0;
+      document.getElementById('qmNotebookStatus').value = c.notebookStatus || '';
+      document.getElementById('qmWorkbookPage').value = c.workbookPage || 0;
+      document.getElementById('qmWorkbookStatus').value = c.workbookStatus || '未派';
+      document.getElementById('qmActivityBookUnit').value = c.activityBookUnit || '';
+      document.getElementById('qmActivityBookStatus').value = c.activityBookStatus || '未派';
+      document.getElementById('qmQuizUnit').value = c.quizUnit || '';
+      document.getElementById('qmQuizStatus').value = c.quizStatus || '未安排';
+      document.getElementById('qmQuizMissing').value = c.quizMissing || '';
+      document.getElementById('qmNotes').value = c.notes || '';
+
+      // 4. 重點實驗快速更新條列
+      renderQuickModalExperiments(c);
+    }
+
+    function renderQuickModalExperiments(c) {
+      const container = document.getElementById('qmExperimentsList');
+      container.innerHTML = '';
+
+      if (!c.labs || c.labs.length === 0) {
+        container.innerHTML = '<div class="text-[11px] text-slate-400 italic">此班尚未新增任何重點實驗項目。</div>';
+        return;
+      }
+
+      c.labs.forEach((lab, index) => {
+        const item = document.createElement('div');
+        item.className = "p-2 rounded-lg border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs";
+        item.innerHTML = `
+          <div class="flex-1 font-bold text-slate-800 truncate">${lab.name}</div>
+          <div class="flex items-center gap-2 shrink-0">
+            <select onchange="updateQmlabStatus(${index}, this.value)" class="border rounded px-2 py-1 font-semibold text-[11px] ${
+              lab.status === 'completed' ? 'text-emerald-700 bg-emerald-50' : lab.status === 'ready' ? 'text-blue-700 bg-blue-50' : 'text-slate-600'
+            }">
+              <option value="pending" ${lab.status === 'pending' ? 'selected' : ''}>未安排</option>
+              <option value="ready" ${lab.status === 'ready' ? 'selected' : ''}>已備料/器材就緒</option>
+              <option value="completed" ${lab.status === 'completed' ? 'selected' : ''}>操作完畢</option>
+              <option value="makeup" ${lab.status === 'makeup' ? 'selected' : ''}>需補做</option>
+            </select>
+            <input type="text" placeholder="缺課補做名單" value="${lab.missing || ''}" oninput="updateQmlabMissing(${index}, this.value)" class="border rounded p-1 text-[11px] w-28 bg-white" />
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function saveQmField(field, val) {
+      const c = appData.classes.find(item => item.id === quickModalActiveId);
       if (c) {
-        const autoCompleted = calculateAutoCompletedLessons(c.id);
-        document.getElementById('quickModalLessonCount').textContent = `${autoCompleted} 節`;
-        document.getElementById('quickModalPage').value = c.textbookPage || 0;
-        document.getElementById('quickModalWorkbookStatus').value = c.workbookStatus || '未派';
+        c[field] = val;
+        // 記憶體即時更新，不重繪 DOM 避免失去焦點
       }
     }
 
-    function saveQuickModalChanges() {
-      const classId = document.getElementById('quickModalClassSelect').value;
-      const c = appData.classes.find(item => item.id === classId);
-      if (c) {
-        c.textbookPage = Number(document.getElementById('quickModalPage').value) || 0;
-        c.workbookStatus = document.getElementById('quickModalWorkbookStatus').value;
-        saveAppData();
+    function updateQmlabStatus(index, val) {
+      const c = appData.classes.find(item => item.id === quickModalActiveId);
+      if (c && c.labs && c.labs[index]) {
+        c.labs[index].status = val;
       }
     }
 
-    // ===== 11. 雲端同步金鑰彈窗 =====
+    function updateQmlabMissing(index, val) {
+      const c = appData.classes.find(item => item.id === quickModalActiveId);
+      if (c && c.labs && c.labs[index]) {
+        c.labs[index].missing = val;
+      }
+    }
+
+    // ===== 12. 雲端同步金鑰彈窗 =====
     function openSyncSettingsModal() {
       document.getElementById('syncKeyInput').value = syncKey;
       const modal = document.getElementById('syncSettingsModal');
@@ -1572,14 +1961,14 @@
       }
     }
 
-    // ===== 12. 本機備份匯出與匯入 =====
+    // ===== 13. 本機備份匯出與匯入 =====
     function exportData() {
       sortAllClasses();
       const blob = new Blob([JSON.stringify(appData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `自然科教學進度備份_堂數自動精算版_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `自然科教學進度備份_快速登記全功能版_${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -1613,6 +2002,24 @@
       renderCurriculumTab();
       renderOverview();
       initFirebase();
+
+      // 每分鐘自動重新檢查時間，即時推進當天已授課堂數
+      setInterval(() => {
+        if (activeTab === 'overview') renderOverview();
+        if (activeTab === 'detail') {
+          const current = appData.classes.find(c => c.id === currentSelectedClassId);
+          if (current) {
+            const autoCompleted = calculateAutoCompletedLessons(current.id);
+            const displayEl = document.getElementById('detailCompletedLessonsDisplay');
+            if (displayEl) {
+              displayEl.innerHTML = `
+                <span class="text-base text-emerald-950 font-black">${autoCompleted} 節</span>
+                <span class="text-[10px] text-slate-500 font-normal">依課表與作息時間即時累計</span>
+              `;
+            }
+          }
+        }
+      }, 60000);
     });
   </script>
 </body>
