@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>國小自然科教學進度管理系統 - 全管線即時配速版</title>
+  <title>國小自然科教學進度管理系統 - 自訂教材追蹤版</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase 8 穩定版相容 CDN -->
@@ -34,7 +34,7 @@
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-3 mt-1">
-          <h1 class="text-2xl font-bold tracking-tight text-slate-900">教學進度與全管線配速儀表板</h1>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">教學進度與自訂教材追蹤儀表板</h1>
           <!-- 目前倒數目標段考選單 -->
           <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-800">
             <span>段考目標：</span>
@@ -121,22 +121,13 @@
                   <input type="text" id="detailExamScope" oninput="updateCurrentClassSilent('examScope', this.value)" onblur="saveAppData(); renderDetailPacing();" placeholder="例如：第一單元全 + 第二單元 2-1" class="w-full border rounded-lg p-2 bg-white font-medium border-emerald-300" />
                 </div>
                 
-                <!-- 四大目標設定網格 -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div class="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label class="text-emerald-900 font-semibold block mb-0.5">課本目標頁碼</label>
+                    <label class="text-emerald-900 font-semibold block mb-0.5">課本目標頁碼 (p.)</label>
                     <input type="number" id="detailTargetPage" oninput="updateCurrentClassSilent('targetPage', Number(this.value))" onblur="saveAppData(); renderDetailPacing();" class="w-full border rounded p-1.5 bg-white font-bold text-center border-emerald-300" />
                   </div>
                   <div>
-                    <label class="text-emerald-900 font-semibold block mb-0.5">習作目標頁碼</label>
-                    <input type="number" id="detailTargetWorkbookPage" oninput="updateCurrentClassSilent('targetWorkbookPage', Number(this.value))" onblur="saveAppData(); renderDetailPacing();" class="w-full border rounded p-1.5 bg-white font-bold text-center border-emerald-300" />
-                  </div>
-                  <div>
-                    <label class="text-emerald-900 font-semibold block mb-0.5">作業簿目標回數</label>
-                    <input type="number" id="detailTargetActivityBookUnit" oninput="updateCurrentClassSilent('targetActivityBookUnit', Number(this.value))" onblur="saveAppData(); renderDetailPacing();" class="w-full border rounded p-1.5 bg-white font-bold text-center border-emerald-300" />
-                  </div>
-                  <div>
-                    <label class="text-emerald-900 font-semibold block mb-0.5">預留總複習節數</label>
+                    <label class="text-emerald-900 font-semibold block mb-0.5">預留總複習節數 (堂)</label>
                     <input type="number" id="detailReviewLessons" oninput="updateCurrentClassSilent('reviewLessons', Number(this.value))" onblur="saveAppData(); renderDetailPacing();" class="w-full border rounded p-1.5 bg-white font-bold text-center border-emerald-300" />
                   </div>
                 </div>
@@ -167,7 +158,7 @@
 
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="text-xs text-slate-500 block mb-1">當前進度 (停在第幾頁)</label>
+                  <label class="text-xs text-slate-500 block mb-1">課本當前進度 (停在第幾頁)</label>
                   <input type="number" id="detailTextbookPage" oninput="updateCurrentClassSilent('textbookPage', Number(this.value))" onblur="saveAppData(); renderDetailPacing();" class="w-full border rounded-lg p-2 text-sm bg-white font-semibold" />
                 </div>
                 <div>
@@ -185,40 +176,20 @@
               </div>
             </section>
 
-            <!-- 作業與習作管線 -->
+            <!-- 自訂作業、習作與輔助教材管線 (自由增刪自訂項目) -->
             <section class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-              <h3 class="font-bold text-sm text-slate-800">作業與習作管線</h3>
-              <div class="grid grid-cols-2 gap-3">
+              <div class="flex justify-between items-center">
                 <div>
-                  <label class="text-xs text-slate-500 block mb-1">自然習作當前進度 (頁碼)</label>
-                  <input type="number" id="detailWorkbookPage" oninput="updateCurrentClassSilent('workbookPage', Number(this.value))" onblur="saveAppData(); renderDetailPacing();" class="w-full border rounded-lg p-2 text-sm bg-white" />
+                  <h3 class="font-bold text-sm text-slate-800">習作、作業簿與自訂教材追蹤</h3>
+                  <p class="text-[11px] text-slate-400">可自由新增探究學習單、實驗手冊等輔助教材</p>
                 </div>
-                <div>
-                  <label class="text-xs text-slate-500 block mb-1">習作批改狀態</label>
-                  <select id="detailWorkbookStatus" onchange="updateCurrentClass('workbookStatus', this.value)" class="w-full border rounded-lg p-2 text-sm bg-white">
-                    <option value="未派">未派</option>
-                    <option value="已派未收">已派未收</option>
-                    <option value="已收待改">已收待改</option>
-                    <option value="已批改待訂正">已批改待訂正</option>
-                    <option value="訂正完畢">訂正完畢</option>
-                  </select>
-                </div>
+                <button onclick="promptAddNewCustomItem()" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-medium px-2.5 py-1 rounded transition">
+                  + 新增追蹤教材
+                </button>
               </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-xs text-slate-500 block mb-1">作業簿當前回數 (請填數字)</label>
-                  <input type="number" id="detailActivityBookUnit" oninput="updateCurrentClassSilent('activityBookUnit', Number(this.value))" onblur="saveAppData(); renderDetailPacing();" placeholder="例如：1" class="w-full border rounded-lg p-2 text-sm bg-white" />
-                </div>
-                <div>
-                  <label class="text-xs text-slate-500 block mb-1">作業簿批改狀態</label>
-                  <select id="detailActivityBookStatus" onchange="updateCurrentClass('activityBookStatus', this.value)" class="w-full border rounded-lg p-2 text-sm bg-white">
-                    <option value="未派">未派</option>
-                    <option value="已派未收">已派未收</option>
-                    <option value="已收待改">已收待改</option>
-                    <option value="已批改待訂正">已批改待訂正</option>
-                    <option value="訂正完畢">訂正完畢</option>
-                  </select>
-                </div>
+
+              <div id="customTrackedItemsList" class="space-y-3">
+                <!-- 動態注入所有追蹤項目 (習作、作業簿、自訂項目) -->
               </div>
             </section>
 
@@ -428,7 +399,7 @@
       </div>
     </main>
 
-    <!-- 下課快速登記全功能彈窗 (含全管線指引) -->
+    <!-- 下課快速登記全功能彈窗 (支援自訂項目) -->
     <div id="quickModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-3 md:p-6 z-50 overflow-y-auto">
       <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-5 my-auto max-h-[90vh] overflow-y-auto">
         
@@ -482,42 +453,13 @@
             </div>
           </div>
 
-          <!-- 3. 作業與習作管線 -->
+          <!-- 3. 自訂教材與作業管線 (動態注入該班的所有追蹤教材) -->
           <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
             <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-blue-600"></span> 自然習作與作業簿
+              <span class="w-2 h-2 rounded-full bg-blue-600"></span> 作業、習作與輔助教材管線
             </h4>
-            <div class="grid grid-cols-2 gap-2.5">
-              <div>
-                <label class="text-slate-500 block mb-0.5">自然習作進度 (頁碼)</label>
-                <input type="number" id="qmWorkbookPage" oninput="saveQmField('workbookPage', Number(this.value)); updateQmAdvice();" class="w-full border rounded p-1.5 bg-white font-medium text-center" />
-              </div>
-              <div>
-                <label class="text-slate-500 block mb-0.5">習作批改狀態</label>
-                <select id="qmWorkbookStatus" onchange="saveQmField('workbookStatus', this.value)" class="w-full border rounded p-1.5 bg-white font-medium">
-                  <option value="未派">未派</option>
-                  <option value="已派未收">已派未收</option>
-                  <option value="已收待改">已收待改</option>
-                  <option value="已批改待訂正">已批改待訂正</option>
-                  <option value="訂正完畢">訂正完畢</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-2.5">
-              <div>
-                <label class="text-slate-500 block mb-0.5">作業簿當前回數 (數字)</label>
-                <input type="number" id="qmActivityBookUnit" placeholder="例如：1" oninput="saveQmField('activityBookUnit', Number(this.value)); updateQmAdvice();" class="w-full border rounded p-1.5 bg-white font-medium text-center" />
-              </div>
-              <div>
-                <label class="text-slate-500 block mb-0.5">作業簿狀態</label>
-                <select id="qmActivityBookStatus" onchange="saveQmField('activityBookStatus', this.value)" class="w-full border rounded p-1.5 bg-white font-medium">
-                  <option value="未派">未派</option>
-                  <option value="已派未收">已派未收</option>
-                  <option value="已收待改">已收待改</option>
-                  <option value="已批改待訂正">已批改待訂正</option>
-                  <option value="訂正完畢">訂正完畢</option>
-                </select>
-              </div>
+            <div id="qmCustomItemsList" class="space-y-2">
+              <!-- 動態生成各追蹤項目登記列 -->
             </div>
           </div>
 
@@ -725,7 +667,7 @@
       });
     }
 
-    // ===== 3. 資料庫結構 (含全管線配速目標) =====
+    // ===== 3. 資料庫結構 (含自訂教材追蹤清單) =====
     const defaultPeriodTimes = {
       1: { start: "08:40", end: "09:20" },
       2: { start: "09:30", end: "10:10" },
@@ -748,6 +690,13 @@
         timeStr: `${hh}:${mm}`,
         fullStr: `${y}-${m}-${day} ${hh}:${mm}`
       };
+    }
+
+    function createDefaultTrackedItems(currWb = 6, targetWb = 16, currAb = 1, targetAb = 4) {
+      return [
+        { id: "item-wb", name: "自然習作", unit: "頁", current: currWb, target: targetWb, status: "已批改待訂正" },
+        { id: "item-ab", name: "隨堂作業簿", unit: "回", current: currAb, target: targetAb, status: "已收待改" }
+      ];
     }
 
     const defaultData = {
@@ -818,15 +767,10 @@
           currentTopic: "第一單元 植物的身體 (1-1 根、莖、葉的奧祕)",
           textbookPage: 12,
           targetPage: 32,
-          targetWorkbookPage: 16,
-          targetActivityBookUnit: 4,
           reviewLessons: 2,
           examScope: "第一單元全 + 第二單元 2-1 磁鐵特性",
           notebookStatus: "植物葉脈拓印完成",
-          workbookPage: 6,
-          workbookStatus: "已批改待訂正",
-          activityBookUnit: 1,
-          activityBookStatus: "已收待改",
+          trackedItems: createDefaultTrackedItems(6, 16, 1, 4),
           quizUnit: "單元一隨堂卷",
           quizStatus: "待測驗",
           quizMissing: "",
@@ -843,15 +787,14 @@
           currentTopic: "二、水生家族 (2-1 水生植物的特徵與構造)",
           textbookPage: 16,
           targetPage: 35,
-          targetWorkbookPage: 18,
-          targetActivityBookUnit: 5,
           reviewLessons: 2,
           examScope: "第一單元觀測太陽 + 第二單元水生家族全",
           notebookStatus: "心智圖重點全數完成",
-          workbookPage: 8,
-          workbookStatus: "已批改待訂正",
-          activityBookUnit: 2,
-          activityBookStatus: "已收待改",
+          trackedItems: [
+            { id: "item-wb", name: "自然習作", unit: "頁", current: 8, target: 18, status: "已批改待訂正" },
+            { id: "item-ab", name: "隨堂作業簿", unit: "回", current: 2, target: 5, status: "已收待改" },
+            { id: "item-sheet", name: "探究實作學習單", unit: "篇", current: 1, target: 3, status: "已派未收" }
+          ],
           quizUnit: "單元一隨堂測驗",
           quizStatus: "待檢討訂正",
           quizMissing: "3號 陳○○ (病假待補)",
@@ -869,15 +812,10 @@
           currentTopic: "二、水生家族 (2-1 水生植物的特徵與構造)",
           textbookPage: 13,
           targetPage: 35,
-          targetWorkbookPage: 18,
-          targetActivityBookUnit: 5,
           reviewLessons: 2,
           examScope: "第一單元觀測太陽 + 第二單元水生家族全",
           notebookStatus: "尚欠 3 人未抄寫完畢",
-          workbookPage: 6,
-          workbookStatus: "已收待改",
-          activityBookUnit: 1,
-          activityBookStatus: "未派",
+          trackedItems: createDefaultTrackedItems(6, 18, 1, 5),
           quizUnit: "單元一隨堂測驗",
           quizStatus: "待測驗",
           quizMissing: "",
@@ -895,15 +833,10 @@
           currentTopic: "單元一 太陽與星星 (1-2 四季星空的觀察)",
           textbookPage: 24,
           targetPage: 42,
-          targetWorkbookPage: 20,
-          targetActivityBookUnit: 5,
           reviewLessons: 2,
           examScope: "單元一 太陽與星星 + 單元二 植物的世界",
           notebookStatus: "星座盤使用筆記已蓋章",
-          workbookPage: 10,
-          workbookStatus: "訂正完畢",
-          activityBookUnit: 2,
-          activityBookStatus: "已批改待訂正",
+          trackedItems: createDefaultTrackedItems(10, 20, 2, 5),
           quizUnit: "星空單元小考",
           quizStatus: "全員訂正完畢",
           quizMissing: "",
@@ -958,12 +891,17 @@
 
       appData.classes.forEach(c => {
         if (c.targetPage === undefined) c.targetPage = 30;
-        if (c.targetWorkbookPage === undefined) c.targetWorkbookPage = 15;
-        if (c.targetActivityBookUnit === undefined) c.targetActivityBookUnit = 4;
         if (c.reviewLessons === undefined) c.reviewLessons = 2;
         if (c.examScope === undefined) c.examScope = "段考範圍";
-        if (typeof c.activityBookUnit === 'string') {
-          c.activityBookUnit = parseInt(c.activityBookUnit.replace(/\D/g, ''), 10) || 1;
+        
+        // 相容升級：如果舊版只有 workbookPage/activityBookUnit，自動轉入 trackedItems 陣列
+        if (!c.trackedItems || !Array.isArray(c.trackedItems)) {
+          c.trackedItems = createDefaultTrackedItems(
+            c.workbookPage || 6,
+            c.targetWorkbookPage || 16,
+            Number(c.activityBookUnit) || 1,
+            c.targetActivityBookUnit || 4
+          );
         }
       });
 
@@ -1009,7 +947,7 @@
       for (let p = 1; p <= 7; p++) {
         const pInfo = appData.settings.periodTimes[p];
         if (pInfo && currentHHMM >= pInfo.start && currentHHMM <= pInfo.end) {
-          periodStatusText = `目前為第 ${p} 節授課中`;
+          periodStatusText = `第 ${p} 節授課中`;
           break;
         }
       }
@@ -1058,7 +996,6 @@
       return set;
     }
 
-    // 比對某節次在今天是否已經上完 (已超過下課時間)
     function isPeriodPassedToday(periodNum) {
       const pInfo = appData.settings.periodTimes[periodNum];
       if (!pInfo || !pInfo.end) return true;
@@ -1067,7 +1004,6 @@
       return currentHHMM >= pInfo.end;
     }
 
-    // 自動精算已授課節數：開學日 -> 今天 (今天依下課時間判定)
     function calculateAutoCompletedLessons(classId) {
       const startStr = appData.settings.semesterStart;
       const todayStr = getNowFormatted().dateStr;
@@ -1105,7 +1041,6 @@
       return count;
     }
 
-    // 自動精算考前剩餘節數：今天未上的課 -> 段考前一日
     function calculateRemainingLessons(classId) {
       const activeExam = getActiveExam();
       if (!activeExam.startDate) return 0;
@@ -1175,14 +1110,10 @@
       return count;
     }
 
-    // ===== 5. 全管線智慧配速分析引擎 =====
+    // ===== 5. 全管線智慧配速分析引擎 (含自訂教材項目) =====
     function analyzeClassFullPipeline(c) {
       const curPage = c.textbookPage || 0;
       const targetPage = c.targetPage || (curPage + 15);
-      const curWb = c.workbookPage || 0;
-      const targetWb = c.targetWorkbookPage || (curWb + 8);
-      const curAb = Number(c.activityBookUnit) || 1;
-      const targetAb = c.targetActivityBookUnit || (curAb + 3);
       const reviewLessons = c.reviewLessons !== undefined ? c.reviewLessons : 2;
 
       const remainingTotal = calculateRemainingLessons(c.id);
@@ -1197,21 +1128,35 @@
         pagesPerLesson = pagesLeft;
       }
 
-      // 2. 習作配速
-      const wbPagesLeft = Math.max(0, targetWb - curWb);
-      let wbPerLesson = 0;
-      if (lessonsForTeaching > 0) {
-        wbPerLesson = Math.round((wbPagesLeft / lessonsForTeaching) * 10) / 10;
+      // 2. 備課指引項目清單
+      let nextGuideItems = [];
+      const stepPage = Math.max(1, Math.round(pagesPerLesson) || 3);
+      const nextEndPage = Math.min(targetPage, curPage + stepPage);
+      
+      if (pagesLeft > 0) {
+        nextGuideItems.push(`課本講授：p.${curPage + 1} ➔ p.${nextEndPage} (約 ${stepPage} 頁)`);
+      } else {
+        nextGuideItems.push(`課本：段考目標範圍已教授完畢，專注概念總複習`);
       }
 
-      // 3. 作業簿配速
-      const abUnitsLeft = Math.max(0, targetAb - curAb);
-      let abPerLesson = 0;
-      if (lessonsForTeaching > 0) {
-        abPerLesson = Math.round((abUnitsLeft / lessonsForTeaching) * 10) / 10;
-      }
+      // 3. 所有自訂教材項目配速分析
+      let hasHeavyBacklog = false;
+      const trackedItemsAnalysis = (c.trackedItems || []).map(item => {
+        const diff = Math.max(0, (item.target || 0) - (item.current || 0));
+        let pace = 0;
+        if (lessonsForTeaching > 0) {
+          pace = Math.round((diff / lessonsForTeaching) * 10) / 10;
+        }
+        if (diff > lessonsForTeaching * 2) hasHeavyBacklog = true;
 
-      // 4. 健康度燈號判定
+        if (diff > 0) {
+          const nextTarget = Math.min(item.target, (item.current || 0) + (pace >= 1 ? Math.round(pace) : 1));
+          nextGuideItems.push(`${item.name}：推進至 ${nextTarget} ${item.unit} (尚欠 ${diff} ${item.unit})`);
+        }
+        return { ...item, diff, pace };
+      });
+
+      // 4. 健康度燈號
       let statusColor = "green";
       let statusLabel = "進度健康";
       if (pagesLeft === 0) {
@@ -1220,7 +1165,7 @@
       } else if (lessonsForTeaching <= 0) {
         statusColor = "red";
         statusLabel = "新授課堂已用罄";
-      } else if (pagesPerLesson > 4.5 || wbPagesLeft > lessonsForTeaching * 2) {
+      } else if (pagesPerLesson > 4.5 || hasHeavyBacklog) {
         statusColor = "red";
         statusLabel = "全管線需精簡趕課";
       } else if (pagesPerLesson > 3.0) {
@@ -1231,27 +1176,7 @@
         statusLabel = "配速充裕 (可充實實驗)";
       }
 
-      // 5. 下次備課具體指引建議
-      const stepPage = Math.max(1, Math.round(pagesPerLesson) || 3);
-      const nextEndPage = Math.min(targetPage, curPage + stepPage);
-      
-      let nextGuideItems = [];
-      if (pagesLeft > 0) {
-        nextGuideItems.push(`課本講授：p.${curPage + 1} ➔ p.${nextEndPage} (約 ${stepPage} 頁)`);
-      } else {
-        nextGuideItems.push(`課本：段考範圍已教授完畢，專注概念總複習`);
-      }
-
-      if (wbPagesLeft > 0) {
-        const nextWb = Math.min(targetWb, curWb + (wbPerLesson >= 1 ? Math.round(wbPerLesson) : 1));
-        nextGuideItems.push(`習作帶寫：推進至 p.${nextWb}`);
-      }
-
-      if (abUnitsLeft > 0) {
-        nextGuideItems.push(`作業簿：距目標尚欠 ${abUnitsLeft} 回，本週需派發`);
-      }
-
-      // 小考與補考提示
+      // 測驗/補考提醒
       if (c.quizMissing && c.quizMissing.trim()) {
         nextGuideItems.push(`測驗補考：今日抽空為【${c.quizMissing}】補測`);
       } else if (c.quizStatus === '待測驗') {
@@ -1260,8 +1185,7 @@
 
       return {
         curPage, targetPage, pagesLeft, pagesPerLesson,
-        curWb, targetWb, wbPagesLeft, wbPerLesson,
-        curAb, targetAb, abUnitsLeft,
+        trackedItemsAnalysis,
         remainingTotal, lessonsForTeaching, reviewLessons,
         statusColor, statusLabel,
         nextGuideItems
@@ -1342,7 +1266,7 @@
               pipeline.statusColor === 'red' ? 'border-rose-200' : pipeline.statusColor === 'yellow' ? 'border-amber-200' : 'border-emerald-200'
             }">
               <span>🎯 下次上課備課目標清單</span>
-              <span class="text-[11px] font-semibold">課本剩 ${pipeline.pagesLeft} 頁 · 習作剩 ${pipeline.wbPagesLeft} 頁</span>
+              <span class="text-[11px] font-semibold">課本剩 ${pipeline.pagesLeft} 頁</span>
             </div>
             <ul class="space-y-0.5 pt-0.5 text-[11px]">
               ${pipeline.nextGuideItems.map(item => `<li class="flex items-start gap-1"><span>•</span><span>${item}</span></li>`).join('')}
@@ -1359,15 +1283,13 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100">
-            <div>
-              <span class="text-slate-400 block">習作管線</span>
-              <span class="font-semibold text-slate-700">${c.workbookStatus} (p.${c.workbookPage})</span>
-            </div>
-            <div>
-              <span class="text-slate-400 block">小考 / 評量</span>
-              <span class="font-semibold text-slate-700">${c.quizStatus}</span>
-            </div>
+          <!-- 各自訂教材狀態小卡標籤 -->
+          <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100 text-[11px]">
+            ${(c.trackedItems || []).map(it => `
+              <span class="bg-slate-50 border border-slate-200 px-2 py-0.5 rounded text-slate-600">
+                ${it.name}: <strong>${it.current}${it.unit}</strong> (${it.status})
+              </span>
+            `).join('')}
           </div>
         `;
         container.appendChild(card);
@@ -1408,11 +1330,8 @@
 
       renderDetailTopicOptions(current);
 
-      // 填入全管線目標
       document.getElementById('detailExamScope').value = current.examScope || '';
       document.getElementById('detailTargetPage').value = current.targetPage || 30;
-      document.getElementById('detailTargetWorkbookPage').value = current.targetWorkbookPage || 15;
-      document.getElementById('detailTargetActivityBookUnit').value = current.targetActivityBookUnit || 4;
       document.getElementById('detailReviewLessons').value = current.reviewLessons !== undefined ? current.reviewLessons : 2;
       renderDetailPacing();
 
@@ -1423,16 +1342,123 @@
         <span class="text-[10px] text-slate-500 font-normal">實時時鐘即時累計</span>
       `;
       document.getElementById('detailNotebookStatus').value = current.notebookStatus || '';
-      document.getElementById('detailWorkbookPage').value = current.workbookPage || 0;
-      document.getElementById('detailWorkbookStatus').value = current.workbookStatus || '未派';
-      document.getElementById('detailActivityBookUnit').value = current.activityBookUnit || 1;
-      document.getElementById('detailActivityBookStatus').value = current.activityBookStatus || '未派';
+
+      // 渲染自訂作業與習作管線列表
+      renderCustomTrackedItemsList(current);
+
       document.getElementById('detailQuizUnit').value = current.quizUnit || '';
       document.getElementById('detailQuizStatus').value = current.quizStatus || '未安排';
       document.getElementById('detailQuizMissing').value = current.quizMissing || '';
       document.getElementById('detailNotes').value = current.notes || '';
 
       renderDetailLabsList(current);
+    }
+
+    // 渲染自訂教材追蹤管線列表 (自由編輯/刪除/更新)
+    function renderCustomTrackedItemsList(currentClass) {
+      const container = document.getElementById('customTrackedItemsList');
+      container.innerHTML = '';
+
+      (currentClass.trackedItems || []).forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "bg-white p-3 rounded-xl border border-slate-200 space-y-2 text-xs shadow-sm";
+        div.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-1.5 flex-1">
+              <input 
+                type="text" 
+                value="${item.name}" 
+                placeholder="項目名稱..." 
+                oninput="updateCustomItemSilent(${index}, 'name', this.value)" 
+                onblur="saveAppData(); renderDetailPacing();" 
+                class="font-bold text-slate-800 text-xs border-b border-transparent hover:border-slate-300 focus:border-emerald-600 px-1 py-0.5 rounded transition focus:outline-none" 
+              />
+              <span class="text-slate-400 text-[10px]">(${item.unit})</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <select onchange="updateCustomItem(${index}, 'status', this.value)" class="border rounded px-2 py-1 text-xs font-semibold bg-white">
+                <option value="未派" ${item.status === '未派' ? 'selected' : ''}>未派</option>
+                <option value="已派未收" ${item.status === '已派未收' ? 'selected' : ''}>已派未收</option>
+                <option value="已收待改" ${item.status === '已收待改' ? 'selected' : ''}>已收待改</option>
+                <option value="已批改待訂正" ${item.status === '已批改待訂正' ? 'selected' : ''}>已批改待訂正</option>
+                <option value="訂正完畢" ${item.status === '訂正完畢' ? 'selected' : ''}>訂正完畢</option>
+              </select>
+              ${currentClass.trackedItems.length > 1 ? `<button onclick="deleteCustomItem(${index})" class="text-rose-500 hover:text-rose-700 font-bold px-1 text-sm leading-none">&times;</button>` : ''}
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">目前進度 (${item.unit})</label>
+              <input 
+                type="number" 
+                value="${item.current || 0}" 
+                oninput="updateCustomItemSilent(${index}, 'current', Number(this.value))" 
+                onblur="saveAppData(); renderDetailPacing();" 
+                class="w-full border rounded p-1.5 text-center font-bold bg-white" 
+              />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">段考目標 (${item.unit})</label>
+              <input 
+                type="number" 
+                value="${item.target || 0}" 
+                oninput="updateCustomItemSilent(${index}, 'target', Number(this.value))" 
+                onblur="saveAppData(); renderDetailPacing();" 
+                class="w-full border rounded p-1.5 text-center font-bold bg-white" 
+              />
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateCustomItemSilent(index, field, val) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && c.trackedItems && c.trackedItems[index]) {
+        c.trackedItems[index][field] = val;
+      }
+    }
+
+    function updateCustomItem(index, field, val) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && c.trackedItems && c.trackedItems[index]) {
+        c.trackedItems[index][field] = val;
+        saveAppData();
+        renderDetailPacing();
+      }
+    }
+
+    function deleteCustomItem(index) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && confirm('確定刪除此項追蹤教材？')) {
+        c.trackedItems.splice(index, 1);
+        saveAppData();
+        renderCustomTrackedItemsList(c);
+        renderDetailPacing();
+      }
+    }
+
+    function promptAddNewCustomItem() {
+      const name = prompt('請輸入追蹤教材名稱 (例如：探究學習單、自然實驗手冊):');
+      if (name && name.trim()) {
+        const unit = prompt('請輸入單位 (例如：頁、回、篇):', '篇') || '篇';
+        const c = appData.classes.find(item => item.id === currentSelectedClassId);
+        if (c) {
+          if (!c.trackedItems) c.trackedItems = [];
+          c.trackedItems.push({
+            id: "item-" + Date.now(),
+            name: name.trim(),
+            unit: unit.trim(),
+            current: 0,
+            target: 3,
+            status: "未派"
+          });
+          saveAppData();
+          renderCustomTrackedItemsList(c);
+          renderDetailPacing();
+        }
+      }
     }
 
     function renderDetailPacing() {
@@ -1450,18 +1476,14 @@
 
       const adviceContainer = document.getElementById('detailPacingAdviceCard');
       adviceContainer.innerHTML = `
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pb-2 border-b border-emerald-100 text-[11px]">
+        <div class="flex flex-wrap justify-between items-center gap-2 pb-1 border-b border-emerald-100 text-[11px]">
           <div>
-            <span class="text-slate-500 block">課本進度剩餘</span>
-            <span class="font-bold text-slate-800">剩 ${p.pagesLeft} 頁 (每節 ~${p.pagesPerLesson} 頁)</span>
+            課本尚欠 <span class="font-bold text-emerald-900">${p.pagesLeft} 頁</span>，
+            可用新進度節數 <span class="font-bold text-emerald-900">${p.lessonsForTeaching} 節</span>
+            (考前總剩餘 ${p.remainingTotal} 節 - 預留複習 ${p.reviewLessons} 節)
           </div>
-          <div>
-            <span class="text-slate-500 block">習作管線剩餘</span>
-            <span class="font-bold text-slate-800">剩 ${p.wbPagesLeft} 頁 (每節 ~${p.wbPerLesson} 頁)</span>
-          </div>
-          <div>
-            <span class="text-slate-500 block">新進度節數</span>
-            <span class="font-bold text-slate-800">剩 ${p.lessonsForTeaching} 節 (扣除 ${p.reviewLessons} 節複習)</span>
+          <div class="font-bold text-emerald-900 bg-emerald-50 px-2 py-0.5 rounded">
+            課本建議配速：每節課 ~${p.pagesPerLesson} 頁
           </div>
         </div>
         <div class="space-y-1 pt-1">
@@ -1616,14 +1638,9 @@
           textbookPage: 1,
           examScope: "單元一與單元二",
           targetPage: 32,
-          targetWorkbookPage: 16,
-          targetActivityBookUnit: 4,
           reviewLessons: 2,
           notebookStatus: "未開始",
-          workbookPage: 1,
-          workbookStatus: "未派",
-          activityBookUnit: 1,
-          activityBookStatus: "未派",
+          trackedItems: createDefaultTrackedItems(1, 16, 1, 4),
           quizUnit: "",
           quizStatus: "未安排",
           quizMissing: "",
@@ -2092,7 +2109,7 @@
       renderCurriculumTab();
     }
 
-    // ===== 12. 全功能快速登記彈窗邏輯 =====
+    // ===== 12. 全功能快速登記彈窗邏輯 (支援動態自訂教材) =====
     let quickModalActiveId = "";
 
     function openQuickModal() {
@@ -2148,16 +2165,63 @@
 
       document.getElementById('qmTextbookPage').value = c.textbookPage || 0;
       document.getElementById('qmNotebookStatus').value = c.notebookStatus || '';
-      document.getElementById('qmWorkbookPage').value = c.workbookPage || 0;
-      document.getElementById('qmWorkbookStatus').value = c.workbookStatus || '未派';
-      document.getElementById('qmActivityBookUnit').value = c.activityBookUnit || 1;
-      document.getElementById('qmActivityBookStatus').value = c.activityBookStatus || '未派';
+
+      // 動態渲染所有自訂追蹤教材項目
+      renderQuickModalCustomItems(c);
+
       document.getElementById('qmQuizUnit').value = c.quizUnit || '';
       document.getElementById('qmQuizStatus').value = c.quizStatus || '未安排';
       document.getElementById('qmQuizMissing').value = c.quizMissing || '';
       document.getElementById('qmNotes').value = c.notes || '';
 
       renderQuickModalExperiments(c);
+    }
+
+    function renderQuickModalCustomItems(c) {
+      const container = document.getElementById('qmCustomItemsList');
+      container.innerHTML = '';
+
+      if (!c.trackedItems || c.trackedItems.length === 0) {
+        container.innerHTML = '<div class="text-[11px] text-slate-400 italic">尚無自訂追蹤教材。</div>';
+        return;
+      }
+
+      c.trackedItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "p-2.5 rounded-lg border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs";
+        div.innerHTML = `
+          <div class="font-bold text-slate-800 flex items-center gap-1">
+            <span>${item.name}</span>
+            <span class="text-slate-400 text-[10px]">(${item.unit})</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1">
+              <span class="text-slate-500 text-[11px]">進度:</span>
+              <input 
+                type="number" 
+                value="${item.current || 0}" 
+                oninput="saveQmCustomItemField(${index}, 'current', Number(this.value)); updateQmAdvice();" 
+                class="w-16 border rounded p-1 text-center bg-white font-bold" 
+              />
+            </div>
+            <select onchange="saveQmCustomItemField(${index}, 'status', this.value)" class="border rounded p-1 text-xs bg-white font-medium">
+              <option value="未派" ${item.status === '未派' ? 'selected' : ''}>未派</option>
+              <option value="已派未收" ${item.status === '已派未收' ? 'selected' : ''}>已派未收</option>
+              <option value="已收待改" ${item.status === '已收待改' ? 'selected' : ''}>已收待改</option>
+              <option value="已批改待訂正" ${item.status === '已批改待訂正' ? 'selected' : ''}>已批改待訂正</option>
+              <option value="訂正完畢" ${item.status === '訂正完畢' ? 'selected' : ''}>訂正完畢</option>
+            </select>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function saveQmCustomItemField(index, field, val) {
+      const c = appData.classes.find(item => item.id === quickModalActiveId);
+      if (c && c.trackedItems && c.trackedItems[index]) {
+        c.trackedItems[index][field] = val;
+      }
     }
 
     function updateQmAdvice() {
@@ -2259,7 +2323,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `自然科教學進度備份_全管線配速版_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `自然科教學進度備份_自訂教材版_${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
