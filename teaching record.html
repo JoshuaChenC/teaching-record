@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>國小自然科教學進度管理系統 - 自訂教材追蹤版</title>
+  <title>國小自然科教學進度管理系統</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase 8 穩定版相容 CDN -->
@@ -134,9 +134,7 @@
               </div>
 
               <!-- 系統自動計算的全管線建議指引卡片 -->
-              <div id="detailPacingAdviceCard" class="bg-white p-3 rounded-lg border border-emerald-200 space-y-2 text-xs">
-                <!-- 動態注入多面向配速建議 -->
-              </div>
+              <div id="detailPacingAdviceCard" class="bg-white p-3 rounded-lg border border-emerald-200 space-y-2 text-xs"></div>
             </section>
 
             <!-- 課本與筆記進度 -->
@@ -145,9 +143,7 @@
                 <h3 class="font-bold text-sm text-slate-800">課本與筆記進度</h3>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs text-slate-500">使用教材：</span>
-                  <select id="detailCurriculumSelect" onchange="onClassCurriculumChange(this.value)" class="text-xs border rounded-md p-1 bg-white font-semibold text-emerald-800 border-emerald-300">
-                    <!-- 動態教材庫選單 -->
-                  </select>
+                  <select id="detailCurriculumSelect" onchange="onClassCurriculumChange(this.value)" class="text-xs border rounded-md p-1 bg-white font-semibold text-emerald-800 border-emerald-300"></select>
                 </div>
               </div>
 
@@ -176,45 +172,35 @@
               </div>
             </section>
 
-            <!-- 自訂作業、習作與輔助教材管線 (自由增刪自訂項目) -->
+            <!-- 習作、作業簿與自訂教材追蹤管線 (含內容補充欄位) -->
             <section class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
               <div class="flex justify-between items-center">
                 <div>
-                  <h3 class="font-bold text-sm text-slate-800">習作、作業簿與自訂教材追蹤</h3>
-                  <p class="text-[11px] text-slate-400">可自由新增探究學習單、實驗手冊等輔助教材</p>
+                  <h3 class="font-bold text-sm text-slate-800">習作、作業簿與輔助教材管線</h3>
+                  <p class="text-[11px] text-slate-400">可自由增刪並填寫重點內容補充</p>
                 </div>
                 <button onclick="promptAddNewCustomItem()" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-medium px-2.5 py-1 rounded transition">
                   + 新增追蹤教材
                 </button>
               </div>
 
-              <div id="customTrackedItemsList" class="space-y-3">
-                <!-- 動態注入所有追蹤項目 (習作、作業簿、自訂項目) -->
-              </div>
+              <div id="customTrackedItemsList" class="space-y-3"></div>
             </section>
 
-            <!-- 小考 / 單元測驗 -->
+            <!-- 自由新增小考 / 單元測驗清單 (與自訂教材相同邏輯，支援補充欄位) -->
             <section class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-              <h3 class="font-bold text-sm text-slate-800">小考 / 單元測驗</h3>
-              <div class="grid grid-cols-2 gap-3">
+              <div class="flex justify-between items-center">
                 <div>
-                  <label class="text-xs text-slate-500 block mb-1">小考卷回數 / 範圍</label>
-                  <input type="text" id="detailQuizUnit" oninput="updateCurrentClassSilent('quizUnit', this.value)" onblur="saveAppData()" placeholder="例如：1-1 隨堂卷" class="w-full border rounded-lg p-2 text-sm bg-white" />
+                  <h3 class="font-bold text-sm text-slate-800">小考 / 隨堂評量測驗清單</h3>
+                  <p class="text-[11px] text-slate-400">自由設定測驗時間、單元範圍與補考補充</p>
                 </div>
-                <div>
-                  <label class="text-xs text-slate-500 block mb-1">測驗與訂正狀態</label>
-                  <select id="detailQuizStatus" onchange="updateCurrentClass('quizStatus', this.value)" class="w-full border rounded-lg p-2 text-sm bg-white">
-                    <option value="未安排">未安排</option>
-                    <option value="待測驗">待測驗</option>
-                    <option value="已測驗待批改">已測驗待批改</option>
-                    <option value="待檢討訂正">待檢討訂正</option>
-                    <option value="全員訂正完畢">全員訂正完畢</option>
-                  </select>
-                </div>
+                <button onclick="promptAddNewQuizItem()" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-medium px-2.5 py-1 rounded transition">
+                  + 新增小考評量
+                </button>
               </div>
-              <div>
-                <label class="text-xs text-slate-500 block mb-1">缺考需補考名單</label>
-                <input type="text" id="detailQuizMissing" oninput="updateCurrentClassSilent('quizMissing', this.value)" onblur="saveAppData()" placeholder="例如：5號林小明、12號陳小華" class="w-full border rounded-lg p-2 text-sm bg-white" />
+
+              <div id="quizzesTrackedList" class="space-y-3">
+                <!-- 動態注入多筆小考測驗項目 -->
               </div>
             </section>
           </div>
@@ -399,14 +385,14 @@
       </div>
     </main>
 
-    <!-- 下課快速登記全功能彈窗 (支援自訂項目) -->
+    <!-- 下課快速登記全功能彈窗 (支援多小考與補充欄位) -->
     <div id="quickModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-3 md:p-6 z-50 overflow-y-auto">
       <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-5 my-auto max-h-[90vh] overflow-y-auto">
         
         <div class="flex justify-between items-start border-b pb-3">
           <div>
             <h3 class="font-bold text-lg text-slate-900">下課 30 秒快速登記</h3>
-            <p class="text-xs text-slate-500 mt-0.5">授課節數依當前時間自動累計，快速記錄各項管線進度。</p>
+            <p class="text-xs text-slate-500 mt-0.5">授課節數依當前時間自動累計，快速記錄各項管線進度與補充。</p>
           </div>
           <button onclick="closeQuickModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none">&times;</button>
         </div>
@@ -428,9 +414,7 @@
           </div>
 
           <!-- 全管線備課導航指示橫幅 -->
-          <div id="qmPacingAdviceBanner" class="p-3.5 bg-emerald-50/90 border border-emerald-200 rounded-xl space-y-1">
-            <!-- 動態注入多面向備課建議 -->
-          </div>
+          <div id="qmPacingAdviceBanner" class="p-3.5 bg-emerald-50/90 border border-emerald-200 rounded-xl space-y-1"></div>
 
           <!-- 2. 課本與筆記落實 -->
           <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
@@ -453,41 +437,20 @@
             </div>
           </div>
 
-          <!-- 3. 自訂教材與作業管線 (動態注入該班的所有追蹤教材) -->
+          <!-- 3. 自訂教材與作業管線 (含補充內容) -->
           <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
             <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-blue-600"></span> 作業、習作與輔助教材管線
             </h4>
-            <div id="qmCustomItemsList" class="space-y-2">
-              <!-- 動態生成各追蹤項目登記列 -->
-            </div>
+            <div id="qmCustomItemsList" class="space-y-2.5"></div>
           </div>
 
-          <!-- 4. 小考 / 單元測驗 -->
+          <!-- 4. 小考 / 單元測驗清單 (彈窗內快速更新) -->
           <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
             <h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-amber-600"></span> 小考 / 隨堂評量測驗
+              <span class="w-2 h-2 rounded-full bg-amber-600"></span> 小考 / 隨堂評量測驗快速劃記
             </h4>
-            <div class="grid grid-cols-2 gap-2.5">
-              <div>
-                <label class="text-slate-500 block mb-0.5">小考卷回數 / 範圍</label>
-                <input type="text" id="qmQuizUnit" placeholder="例如：1-1 隨堂卷" oninput="saveQmField('quizUnit', this.value)" class="w-full border rounded p-1.5 bg-white font-medium" />
-              </div>
-              <div>
-                <label class="text-slate-500 block mb-0.5">測驗與訂正狀態</label>
-                <select id="qmQuizStatus" onchange="saveQmField('quizStatus', this.value)" class="w-full border rounded p-1.5 bg-white font-medium">
-                  <option value="未安排">未安排</option>
-                  <option value="待測驗">待測驗</option>
-                  <option value="已測驗待批改">已測驗待批改</option>
-                  <option value="待檢討訂正">待檢討訂正</option>
-                  <option value="全員訂正完畢">全員訂正完畢</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label class="text-slate-500 block mb-0.5">缺考需補考名單</label>
-              <input type="text" id="qmQuizMissing" placeholder="例如：5號林小明、12號陳小華" oninput="saveQmField('quizMissing', this.value)" class="w-full border rounded p-1.5 bg-white" />
-            </div>
+            <div id="qmQuizzesList" class="space-y-2.5"></div>
           </div>
 
           <!-- 5. 重點實驗快速劃記 -->
@@ -542,13 +505,13 @@
   <script>
     // ===== 1. FIREBASE 雲端設定 =====
     const firebaseConfig = {
-      apiKey: "AIzaSyAbRk1REuNeFUQ0F2zkwcXU_dVOOLhZCUg",
-      authDomain: "teaching-record-8cf2c.firebaseapp.com",
-      databaseURL: "https://teaching-record-8cf2c-default-rtdb.firebaseio.com",
-      projectId: "teaching-record-8cf2c",
-      storageBucket: "teaching-record-8cf2c.firebasestorage.app",
-      messagingSenderId: "625338287194",
-      appId: "1:625338287194:web:b78ece4d595cbc7a9d8463"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
     let firebaseDb = null;
@@ -667,7 +630,7 @@
       });
     }
 
-    // ===== 3. 資料庫結構 (含自訂教材追蹤清單) =====
+    // ===== 3. 資料庫結構 (含自訂教材補充欄位與小考清單) =====
     const defaultPeriodTimes = {
       1: { start: "08:40", end: "09:20" },
       2: { start: "09:30", end: "10:10" },
@@ -694,8 +657,15 @@
 
     function createDefaultTrackedItems(currWb = 6, targetWb = 16, currAb = 1, targetAb = 4) {
       return [
-        { id: "item-wb", name: "自然習作", unit: "頁", current: currWb, target: targetWb, status: "已批改待訂正" },
-        { id: "item-ab", name: "隨堂作業簿", unit: "回", current: currAb, target: targetAb, status: "已收待改" }
+        { id: "item-wb", name: "自然習作", unit: "頁", current: currWb, target: targetWb, status: "已批改待訂正", extraNotes: "實驗題帶寫完畢，欠缺第4題訂正" },
+        { id: "item-ab", name: "隨堂作業簿", unit: "回", current: currAb, target: targetAb, status: "已收待改", extraNotes: "已指派基礎題" }
+      ];
+    }
+
+    function createDefaultQuizzes(scope = "單元一評量") {
+      return [
+        { id: "quiz-1", name: "第一次隨堂快問", scope: scope, date: "2026-09-24", status: "全員訂正完畢", missing: "", extraNotes: "及格標準80分，概念普遍良好" },
+        { id: "quiz-2", name: "單元一隨堂評量", scope: scope, date: "2026-10-15", status: "待測驗", missing: "5號 林小明 (請假)", extraNotes: "著重考題：太陽方位變化圖繪製" }
       ];
     }
 
@@ -771,9 +741,7 @@
           examScope: "第一單元全 + 第二單元 2-1 磁鐵特性",
           notebookStatus: "植物葉脈拓印完成",
           trackedItems: createDefaultTrackedItems(6, 16, 1, 4),
-          quizUnit: "單元一隨堂卷",
-          quizStatus: "待測驗",
-          quizMissing: "",
+          quizzes: createDefaultQuizzes("第一單元 植物的身體"),
           notes: "低中年級剛接觸自然科，操作實驗需多留 10 分鐘收拾",
           labs: [
             { name: "葉脈觀察與葉片拓印", status: "completed", date: "2026-09-20", missing: "", equip: "各類植物葉片、放大鏡" },
@@ -791,13 +759,11 @@
           examScope: "第一單元觀測太陽 + 第二單元水生家族全",
           notebookStatus: "心智圖重點全數完成",
           trackedItems: [
-            { id: "item-wb", name: "自然習作", unit: "頁", current: 8, target: 18, status: "已批改待訂正" },
-            { id: "item-ab", name: "隨堂作業簿", unit: "回", current: 2, target: 5, status: "已收待改" },
-            { id: "item-sheet", name: "探究實作學習單", unit: "篇", current: 1, target: 3, status: "已派未收" }
+            { id: "item-wb", name: "自然習作", unit: "頁", current: 8, target: 18, status: "已批改待訂正", extraNotes: "太陽竿影作圖全班已檢討" },
+            { id: "item-ab", name: "隨堂作業簿", unit: "回", current: 2, target: 5, status: "已收待改", extraNotes: "第2回全班繳齊" },
+            { id: "item-sheet", name: "探究實作學習單", unit: "篇", current: 1, target: 3, status: "已派未收", extraNotes: "布袋蓮氣室解剖觀察記錄單" }
           ],
-          quizUnit: "單元一隨堂測驗",
-          quizStatus: "待檢討訂正",
-          quizMissing: "3號 陳○○ (病假待補)",
+          quizzes: createDefaultQuizzes("單元一 觀測太陽與方位"),
           notes: "提問熱絡，進度穩定符合排程",
           labs: [
             { name: "竿影方位觀測與影子紀錄", status: "completed", date: "2026-09-18", missing: "", equip: "指北針、竿影觀測板" },
@@ -816,9 +782,7 @@
           examScope: "第一單元觀測太陽 + 第二單元水生家族全",
           notebookStatus: "尚欠 3 人未抄寫完畢",
           trackedItems: createDefaultTrackedItems(6, 18, 1, 5),
-          quizUnit: "單元一隨堂測驗",
-          quizStatus: "待測驗",
-          quizMissing: "",
+          quizzes: createDefaultQuizzes("單元一 觀測太陽與方位"),
           notes: "週一中秋補假少上2節，課堂提問需精準收斂",
           labs: [
             { name: "竿影方位觀測與影子紀錄", status: "completed", date: "2026-09-19", missing: "", equip: "指北針、竿影觀測板" },
@@ -837,9 +801,7 @@
           examScope: "單元一 太陽與星星 + 單元二 植物的世界",
           notebookStatus: "星座盤使用筆記已蓋章",
           trackedItems: createDefaultTrackedItems(10, 20, 2, 5),
-          quizUnit: "星空單元小考",
-          quizStatus: "全員訂正完畢",
-          quizMissing: "",
+          quizzes: createDefaultQuizzes("單元一 太陽與星星"),
           notes: "需提前至器材室清點旋轉星座盤",
           labs: [
             { name: "星座盤操作與北極星指認", status: "completed", date: "2026-09-25", missing: "", equip: "四季星座盤、指北針" },
@@ -894,14 +856,34 @@
         if (c.reviewLessons === undefined) c.reviewLessons = 2;
         if (c.examScope === undefined) c.examScope = "段考範圍";
         
-        // 相容升級：如果舊版只有 workbookPage/activityBookUnit，自動轉入 trackedItems 陣列
+        // 確保 trackedItems 包含 extraNotes
         if (!c.trackedItems || !Array.isArray(c.trackedItems)) {
-          c.trackedItems = createDefaultTrackedItems(
-            c.workbookPage || 6,
-            c.targetWorkbookPage || 16,
-            Number(c.activityBookUnit) || 1,
-            c.targetActivityBookUnit || 4
-          );
+          c.trackedItems = createDefaultTrackedItems();
+        } else {
+          c.trackedItems.forEach(it => {
+            if (it.extraNotes === undefined) it.extraNotes = "";
+          });
+        }
+
+        // 升級 quizzes 為陣列結構
+        if (!c.quizzes || !Array.isArray(c.quizzes)) {
+          c.quizzes = [
+            {
+              id: "quiz-" + Date.now(),
+              name: "單元隨堂測驗",
+              scope: c.quizUnit || c.currentTopic || "單元評量",
+              date: "",
+              status: c.quizStatus || "未安排",
+              missing: c.quizMissing || "",
+              extraNotes: ""
+            }
+          ];
+        } else {
+          c.quizzes.forEach(q => {
+            if (q.extraNotes === undefined) q.extraNotes = "";
+            if (q.scope === undefined) q.scope = "";
+            if (q.date === undefined) q.date = "";
+          });
         }
       });
 
@@ -1110,7 +1092,7 @@
       return count;
     }
 
-    // ===== 5. 全管線智慧配速分析引擎 (含自訂教材項目) =====
+    // ===== 5. 全管線智慧配速分析 (含小考與各教材補充) =====
     function analyzeClassFullPipeline(c) {
       const curPage = c.textbookPage || 0;
       const targetPage = c.targetPage || (curPage + 15);
@@ -1156,7 +1138,21 @@
         return { ...item, diff, pace };
       });
 
-      // 4. 健康度燈號
+      // 4. 小考評量管線分析
+      const pendingQuizzes = (c.quizzes || []).filter(q => q.status === '待測驗' || q.status === '未安排');
+      if (pendingQuizzes.length > 0) {
+        const targetQ = pendingQuizzes[0];
+        nextGuideItems.push(`小考排程：準備【${targetQ.name}】(${targetQ.scope || '隨堂卷'}) ${targetQ.date ? `預定於 ${targetQ.date}` : ''}`);
+      }
+
+      const missingQuizzes = (c.quizzes || []).filter(q => q.missing && q.missing.trim());
+      if (missingQuizzes.length > 0) {
+        missingQuizzes.forEach(mq => {
+          nextGuideItems.push(`測驗補考：【${mq.name}】尚欠 ${mq.missing} 待補測`);
+        });
+      }
+
+      // 5. 健康度燈號
       let statusColor = "green";
       let statusLabel = "進度健康";
       if (pagesLeft === 0) {
@@ -1176,16 +1172,10 @@
         statusLabel = "配速充裕 (可充實實驗)";
       }
 
-      // 測驗/補考提醒
-      if (c.quizMissing && c.quizMissing.trim()) {
-        nextGuideItems.push(`測驗補考：今日抽空為【${c.quizMissing}】補測`);
-      } else if (c.quizStatus === '待測驗') {
-        nextGuideItems.push(`小考：安排施測【${c.quizUnit || '隨堂卷'}】`);
-      }
-
       return {
         curPage, targetPage, pagesLeft, pagesPerLesson,
         trackedItemsAnalysis,
+        pendingQuizzesCount: pendingQuizzes.length,
         remainingTotal, lessonsForTeaching, reviewLessons,
         statusColor, statusLabel,
         nextGuideItems
@@ -1265,8 +1255,8 @@
             <div class="flex justify-between items-center font-bold pb-1 border-b ${
               pipeline.statusColor === 'red' ? 'border-rose-200' : pipeline.statusColor === 'yellow' ? 'border-amber-200' : 'border-emerald-200'
             }">
-              <span>🎯 下次上課備課目標清單</span>
-              <span class="text-[11px] font-semibold">課本剩 ${pipeline.pagesLeft} 頁</span>
+              <span>🎯 下次備課指引清單</span>
+              <span class="text-[11px] font-semibold">待考小考 ${pipeline.pendingQuizzesCount} 次</span>
             </div>
             <ul class="space-y-0.5 pt-0.5 text-[11px]">
               ${pipeline.nextGuideItems.map(item => `<li class="flex items-start gap-1"><span>•</span><span>${item}</span></li>`).join('')}
@@ -1290,6 +1280,9 @@
                 ${it.name}: <strong>${it.current}${it.unit}</strong> (${it.status})
               </span>
             `).join('')}
+            <span class="bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-amber-800 font-medium">
+              小考已排: ${(c.quizzes || []).length} 回
+            </span>
           </div>
         `;
         container.appendChild(card);
@@ -1343,27 +1336,26 @@
       `;
       document.getElementById('detailNotebookStatus').value = current.notebookStatus || '';
 
-      // 渲染自訂作業與習作管線列表
+      // 渲染教材管線 (含內容補充欄位)
       renderCustomTrackedItemsList(current);
 
-      document.getElementById('detailQuizUnit').value = current.quizUnit || '';
-      document.getElementById('detailQuizStatus').value = current.quizStatus || '未安排';
-      document.getElementById('detailQuizMissing').value = current.quizMissing || '';
-      document.getElementById('detailNotes').value = current.notes || '';
+      // 渲染自由小考評量管線 (含日期、單元與內容補充)
+      renderQuizzesTrackedList(current);
 
+      document.getElementById('detailNotes').value = current.notes || '';
       renderDetailLabsList(current);
     }
 
-    // 渲染自訂教材追蹤管線列表 (自由編輯/刪除/更新)
+    // 渲染教材管線列表 (增加內容補充欄位)
     function renderCustomTrackedItemsList(currentClass) {
       const container = document.getElementById('customTrackedItemsList');
       container.innerHTML = '';
 
       (currentClass.trackedItems || []).forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = "bg-white p-3 rounded-xl border border-slate-200 space-y-2 text-xs shadow-sm";
+        div.className = "bg-white p-3.5 rounded-xl border border-slate-200 space-y-2 text-xs shadow-sm";
         div.innerHTML = `
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center pb-1 border-b border-slate-100">
             <div class="flex items-center gap-1.5 flex-1">
               <input 
                 type="text" 
@@ -1407,6 +1399,18 @@
                 class="w-full border rounded p-1.5 text-center font-bold bg-white" 
               />
             </div>
+          </div>
+          <!-- 內容補充欄位 -->
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">內容補充 / 重點備忘</label>
+            <input 
+              type="text" 
+              placeholder="例如：帶寫第3、4題實驗題，尚欠2號補交..." 
+              value="${item.extraNotes || ''}" 
+              oninput="updateCustomItemSilent(${index}, 'extraNotes', this.value)" 
+              onblur="saveAppData()" 
+              class="w-full border rounded p-1.5 bg-slate-50 focus:bg-white text-xs transition" 
+            />
           </div>
         `;
         container.appendChild(div);
@@ -1452,12 +1456,150 @@
             unit: unit.trim(),
             current: 0,
             target: 3,
-            status: "未派"
+            status: "未派",
+            extraNotes: ""
           });
           saveAppData();
           renderCustomTrackedItemsList(c);
           renderDetailPacing();
         }
+      }
+    }
+
+    // 渲染小考評量清單 (可選時間、單元、狀態、補充內容)
+    function renderQuizzesTrackedList(currentClass) {
+      const container = document.getElementById('quizzesTrackedList');
+      container.innerHTML = '';
+
+      if (!currentClass.quizzes || currentClass.quizzes.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-400 italic">尚未排定任何小考，點擊上方按鈕即可自由新增。</div>';
+        return;
+      }
+
+      currentClass.quizzes.forEach((quiz, index) => {
+        const div = document.createElement('div');
+        div.className = "bg-white p-3.5 rounded-xl border border-slate-200 space-y-2 text-xs shadow-sm";
+        div.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-100">
+            <div class="flex-1">
+              <input 
+                type="text" 
+                value="${quiz.name}" 
+                placeholder="小考名稱 (例: 第1次小考)..." 
+                oninput="updateQuizSilent(${index}, 'name', this.value)" 
+                onblur="saveAppData(); renderDetailPacing();" 
+                class="font-bold text-slate-800 text-xs border-b border-transparent hover:border-slate-300 focus:border-amber-600 px-1 py-0.5 rounded transition focus:outline-none w-full sm:w-auto" 
+              />
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <select onchange="updateQuiz(${index}, 'status', this.value)" class="border rounded px-2 py-1 text-xs font-semibold ${
+                quiz.status === '全員訂正完畢' ? 'text-emerald-700 bg-emerald-50' : quiz.status === '待測驗' ? 'text-amber-700 bg-amber-50' : 'bg-white'
+              }">
+                <option value="未安排" ${quiz.status === '未安排' ? 'selected' : ''}>未安排</option>
+                <option value="待測驗" ${quiz.status === '待測驗' ? 'selected' : ''}>待測驗</option>
+                <option value="已測驗待批改" ${quiz.status === '已測驗待批改' ? 'selected' : ''}>已測驗待批改</option>
+                <option value="待檢討訂正" ${quiz.status === '待檢討訂正' ? 'selected' : ''}>待檢討訂正</option>
+                <option value="全員訂正完畢" ${quiz.status === '全員訂正完畢' ? 'selected' : ''}>全員訂正完畢</option>
+              </select>
+              <button onclick="deleteQuiz(${index})" class="text-rose-500 hover:text-rose-700 font-bold px-1 text-sm leading-none">&times;</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">預定測驗日期 (選填)</label>
+              <input 
+                type="date" 
+                value="${quiz.date || ''}" 
+                onchange="updateQuiz(${index}, 'date', this.value)" 
+                class="w-full border rounded p-1.5 text-xs bg-white" 
+              />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">測驗單元範圍</label>
+              <input 
+                type="text" 
+                placeholder="例如：1-1 太陽方位變化" 
+                value="${quiz.scope || ''}" 
+                oninput="updateQuizSilent(${index}, 'scope', this.value)" 
+                onblur="saveAppData(); renderDetailPacing();" 
+                class="w-full border rounded p-1.5 bg-white text-xs" 
+              />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">缺考需補考名單</label>
+              <input 
+                type="text" 
+                placeholder="例如：5號 林小明 (請假)" 
+                value="${quiz.missing || ''}" 
+                oninput="updateQuizSilent(${index}, 'missing', this.value)" 
+                onblur="saveAppData(); renderDetailPacing();" 
+                class="w-full border rounded p-1.5 bg-white text-xs" 
+              />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">內容補充 / 評量重點備忘</label>
+              <input 
+                type="text" 
+                placeholder="例如：著重繪圖題、及格標準80分..." 
+                value="${quiz.extraNotes || ''}" 
+                oninput="updateQuizSilent(${index}, 'extraNotes', this.value)" 
+                onblur="saveAppData()" 
+                class="w-full border rounded p-1.5 bg-slate-50 focus:bg-white text-xs transition" 
+              />
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateQuizSilent(index, field, val) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && c.quizzes && c.quizzes[index]) {
+        c.quizzes[index][field] = val;
+      }
+    }
+
+    function updateQuiz(index, field, val) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && c.quizzes && c.quizzes[index]) {
+        c.quizzes[index][field] = val;
+        saveAppData();
+        renderDetailPacing();
+      }
+    }
+
+    function deleteQuiz(index) {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (c && confirm('確定刪除此場小考評量？')) {
+        c.quizzes.splice(index, 1);
+        saveAppData();
+        renderQuizzesTrackedList(c);
+        renderDetailPacing();
+      }
+    }
+
+    function promptAddNewQuizItem() {
+      const c = appData.classes.find(item => item.id === currentSelectedClassId);
+      if (!c) return;
+      if (!c.quizzes) c.quizzes = [];
+      const newNum = c.quizzes.length + 1;
+      const name = prompt(`請輸入小考評量名稱:`, `第 ${newNum} 次小考`);
+      if (name && name.trim()) {
+        c.quizzes.push({
+          id: "quiz-" + Date.now(),
+          name: name.trim(),
+          scope: c.currentTopic || "單元評量",
+          date: getNowFormatted().dateStr,
+          status: "待測驗",
+          missing: "",
+          extraNotes: ""
+        });
+        saveAppData();
+        renderQuizzesTrackedList(c);
+        renderDetailPacing();
       }
     }
 
@@ -1543,13 +1685,6 @@
         `;
         labsContainer.appendChild(labItem);
       });
-    }
-
-    function updateCurrentClassSilent(field, val) {
-      const c = appData.classes.find(item => item.id === currentSelectedClassId);
-      if (c) {
-        c[field] = val;
-      }
     }
 
     function updateLabFieldSilent(index, field, val) {
@@ -1641,9 +1776,7 @@
           reviewLessons: 2,
           notebookStatus: "未開始",
           trackedItems: createDefaultTrackedItems(1, 16, 1, 4),
-          quizUnit: "",
-          quizStatus: "未安排",
-          quizMissing: "",
+          quizzes: createDefaultQuizzes(),
           notes: "",
           labs: []
         });
@@ -2109,7 +2242,7 @@
       renderCurriculumTab();
     }
 
-    // ===== 12. 全功能快速登記彈窗邏輯 (支援動態自訂教材) =====
+    // ===== 12. 全功能快速登記彈窗邏輯 =====
     let quickModalActiveId = "";
 
     function openQuickModal() {
@@ -2166,14 +2299,13 @@
       document.getElementById('qmTextbookPage').value = c.textbookPage || 0;
       document.getElementById('qmNotebookStatus').value = c.notebookStatus || '';
 
-      // 動態渲染所有自訂追蹤教材項目
+      // 動態渲染所有自訂追蹤教材項目 (含補充內容)
       renderQuickModalCustomItems(c);
 
-      document.getElementById('qmQuizUnit').value = c.quizUnit || '';
-      document.getElementById('qmQuizStatus').value = c.quizStatus || '未安排';
-      document.getElementById('qmQuizMissing').value = c.quizMissing || '';
-      document.getElementById('qmNotes').value = c.notes || '';
+      // 動態渲染小考評量項目 (含補充內容)
+      renderQuickModalQuizzes(c);
 
+      document.getElementById('qmNotes').value = c.notes || '';
       renderQuickModalExperiments(c);
     }
 
@@ -2188,30 +2320,85 @@
 
       c.trackedItems.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = "p-2.5 rounded-lg border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs";
+        div.className = "p-2.5 rounded-lg border border-slate-200 bg-slate-50 space-y-2 text-xs";
         div.innerHTML = `
-          <div class="font-bold text-slate-800 flex items-center gap-1">
-            <span>${item.name}</span>
-            <span class="text-slate-400 text-[10px]">(${item.unit})</span>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="font-bold text-slate-800 flex items-center gap-1">
+              <span>${item.name}</span>
+              <span class="text-slate-400 text-[10px]">(${item.unit})</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1">
+                <span class="text-slate-500 text-[11px]">進度:</span>
+                <input 
+                  type="number" 
+                  value="${item.current || 0}" 
+                  oninput="saveQmCustomItemField(${index}, 'current', Number(this.value)); updateQmAdvice();" 
+                  class="w-16 border rounded p-1 text-center bg-white font-bold" 
+                />
+              </div>
+              <select onchange="saveQmCustomItemField(${index}, 'status', this.value)" class="border rounded p-1 text-xs bg-white font-medium">
+                <option value="未派" ${item.status === '未派' ? 'selected' : ''}>未派</option>
+                <option value="已派未收" ${item.status === '已派未收' ? 'selected' : ''}>已派未收</option>
+                <option value="已收待改" ${item.status === '已收待改' ? 'selected' : ''}>已收待改</option>
+                <option value="已批改待訂正" ${item.status === '已批改待訂正' ? 'selected' : ''}>已批改待訂正</option>
+                <option value="訂正完畢" ${item.status === '訂正完畢' ? 'selected' : ''}>訂正完畢</option>
+              </select>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1">
-              <span class="text-slate-500 text-[11px]">進度:</span>
+          <div>
+            <input 
+              type="text" 
+              placeholder="內容補充 / 繳交狀況備忘..." 
+              value="${item.extraNotes || ''}" 
+              oninput="saveQmCustomItemField(${index}, 'extraNotes', this.value)" 
+              class="w-full border rounded p-1 bg-white text-[11px]" 
+            />
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderQuickModalQuizzes(c) {
+      const container = document.getElementById('qmQuizzesList');
+      container.innerHTML = '';
+
+      if (!c.quizzes || c.quizzes.length === 0) {
+        container.innerHTML = '<div class="text-[11px] text-slate-400 italic">尚無小考排程。</div>';
+        return;
+      }
+
+      c.quizzes.forEach((quiz, index) => {
+        const div = document.createElement('div');
+        div.className = "p-2.5 rounded-lg border border-slate-200 bg-slate-50 space-y-1.5 text-xs";
+        div.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+            <div class="font-bold text-slate-800 truncate">${quiz.name} <span class="text-slate-400 text-[10px]">(${quiz.scope || '無範圍'})</span></div>
+            <div class="flex items-center gap-1.5">
+              <select onchange="saveQmQuizField(${index}, 'status', this.value); updateQmAdvice();" class="border rounded p-1 text-[11px] bg-white font-medium">
+                <option value="未安排" ${quiz.status === '未安排' ? 'selected' : ''}>未安排</option>
+                <option value="待測驗" ${quiz.status === '待測驗' ? 'selected' : ''}>待測驗</option>
+                <option value="已測驗待批改" ${quiz.status === '已測驗待批改' ? 'selected' : ''}>已測驗待批改</option>
+                <option value="待檢討訂正" ${quiz.status === '待檢討訂正' ? 'selected' : ''}>待檢討訂正</option>
+                <option value="全員訂正完畢" ${quiz.status === '全員訂正完畢' ? 'selected' : ''}>全員訂正完畢</option>
+              </select>
               <input 
-                type="number" 
-                value="${item.current || 0}" 
-                oninput="saveQmCustomItemField(${index}, 'current', Number(this.value)); updateQmAdvice();" 
-                class="w-16 border rounded p-1 text-center bg-white font-bold" 
+                type="text" 
+                placeholder="缺考補測" 
+                value="${quiz.missing || ''}" 
+                oninput="saveQmQuizField(${index}, 'missing', this.value); updateQmAdvice();" 
+                class="border rounded p-1 text-[11px] w-24 bg-white" 
               />
             </div>
-            <select onchange="saveQmCustomItemField(${index}, 'status', this.value)" class="border rounded p-1 text-xs bg-white font-medium">
-              <option value="未派" ${item.status === '未派' ? 'selected' : ''}>未派</option>
-              <option value="已派未收" ${item.status === '已派未收' ? 'selected' : ''}>已派未收</option>
-              <option value="已收待改" ${item.status === '已收待改' ? 'selected' : ''}>已收待改</option>
-              <option value="已批改待訂正" ${item.status === '已批改待訂正' ? 'selected' : ''}>已批改待訂正</option>
-              <option value="訂正完畢" ${item.status === '訂正完畢' ? 'selected' : ''}>訂正完畢</option>
-            </select>
           </div>
+          <input 
+            type="text" 
+            placeholder="小考補充內容 / 及格標準 / 概念重點..." 
+            value="${quiz.extraNotes || ''}" 
+            oninput="saveQmQuizField(${index}, 'extraNotes', this.value)" 
+            class="w-full border rounded p-1 bg-white text-[11px]" 
+          />
         `;
         container.appendChild(div);
       });
@@ -2221,6 +2408,13 @@
       const c = appData.classes.find(item => item.id === quickModalActiveId);
       if (c && c.trackedItems && c.trackedItems[index]) {
         c.trackedItems[index][field] = val;
+      }
+    }
+
+    function saveQmQuizField(index, field, val) {
+      const c = appData.classes.find(item => item.id === quickModalActiveId);
+      if (c && c.quizzes && c.quizzes[index]) {
+        c.quizzes[index][field] = val;
       }
     }
 
@@ -2323,7 +2517,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `自然科教學進度備份_自訂教材版_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `自然科教學進度備份_自由評量版_${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -2359,7 +2553,7 @@
       initFirebase();
       updateLiveClock();
 
-      // 每 15 秒自動刷新實時時鐘，並在下課瞬間自動推進授課堂數
+      // 每 15 秒自動刷新實時時鐘與堂數判定
       setInterval(() => {
         updateLiveClock();
         if (activeTab === 'overview') renderOverview();
